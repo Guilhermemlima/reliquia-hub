@@ -10,6 +10,14 @@ admin), com arquitetura pronta para as funcionalidades da Fase 2 (leilões,
 escrow real, KYC, IA de preço/fraude, fórum, assinaturas, frete, Mercado
 Pago). Veja [`ROADMAP.md`](./ROADMAP.md) para o detalhamento.
 
+Também inclui um **sistema de afiliados** com montador de PC e páginas de
+jogos — documentado em [`docs/affiliate-system-plan.md`](./docs/affiliate-system-plan.md)
+(visão geral e arquitetura), [`docs/affiliate-admin-guide.md`](./docs/affiliate-admin-guide.md)
+(como usar o painel), [`docs/affiliate-imports.md`](./docs/affiliate-imports.md)
+(formato do CSV), [`docs/affiliate-providers.md`](./docs/affiliate-providers.md)
+(como adicionar um provedor automático), [`docs/affiliate-security.md`](./docs/affiliate-security.md)
+e [`docs/affiliate-compliance.md`](./docs/affiliate-compliance.md).
+
 ## Stack
 
 Next.js 15 (App Router) · TypeScript · Tailwind CSS v4 · shadcn/ui (Base UI) ·
