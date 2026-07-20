@@ -1,0 +1,613 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Auth (NextAuth / Auth.js v5 — Prisma adapter shape)
+// ---------------------------------------------------------------------------
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  /// hash bcrypt — nulo para usuários que só entraram via OAuth
+  password      String?
+  role          Role      @default(USER)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts Account[]
+  sessions Session[]
+
+  sellerProfile SellerProfile?
+  listings      Listing[]
+  favorites     Favorite[]
+
+  conversationsAsBuyer  Conversation[] @relation("BuyerConversations")
+  conversationsAsSeller Conversation[] @relation("SellerConversations")
+  messages              Message[]
+
+  ordersAsBuyer  Order[] @relation("BuyerOrders")
+  ordersAsSeller Order[] @relation("SellerOrders")
+
+  reviewsWritten  Review[] @relation("ReviewsWritten")
+  reviewsReceived Review[] @relation("ReviewsReceived")
+
+  reportsFiled   Report[] @relation("ReportsFiled")
+  reportsAgainst Report[] @relation("ReportsAgainst")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+enum Role {
+  USER
+  SELLER
+  ADMIN
+}
+
+// ---------------------------------------------------------------------------
+// Vendedores / reputação
+// ---------------------------------------------------------------------------
+
+model SellerProfile {
+  id          String    @id @default(cuid())
+  userId      String    @unique
+  storeName   String
+  slug        String    @unique
+  bio         String?   @db.Text
+  socialLinks Json?
+  /// reservado para o fluxo de KYC (Fase 2) — hoje só NONE é usado
+  kycStatus   KycStatus @default(NONE)
+  verified    Boolean   @default(false)
+  ratingAvg   Float     @default(0)
+  ratingCount Int       @default(0)
+  totalSales  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum KycStatus {
+  NONE
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+// ---------------------------------------------------------------------------
+// Catálogo
+// ---------------------------------------------------------------------------
+
+model Category {
+  id               String   @id @default(cuid())
+  slug             String   @unique
+  name             String
+  description      String?
+  icon             String?
+  parentId         String?
+  /// define os campos dinâmicos de atributo desta categoria
+  /// ex: [{ "key": "console", "label": "Console", "type": "select", "options": ["NES","SNES"] }]
+  attributesSchema Json     @default("[]")
+  createdAt        DateTime @default(now())
+
+  parent   Category?  @relation("CategoryTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children Category[] @relation("CategoryTree")
+  listings Listing[]
+
+  @@index([parentId])
+}
+
+model Listing {
+  id          String           @id @default(cuid())
+  sellerId    String
+  categoryId  String
+  title       String
+  slug        String           @unique
+  description String           @db.Text
+  condition   ListingCondition
+  price       Decimal          @db.Decimal(10, 2)
+  currency    String           @default("BRL")
+  status      ListingStatus    @default(DRAFT)
+  /// reservado para leilão (Fase 2) — hoje só FIXED tem lógica ativa
+  saleType    SaleType         @default(FIXED)
+  quantity    Int              @default(1)
+  /// valores dos atributos dinâmicos definidos por Category.attributesSchema
+  attributes  Json             @default("{}")
+  viewCount   Int              @default(0)
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  seller        User                  @relation(fields: [sellerId], references: [id], onDelete: Cascade)
+  category      Category              @relation(fields: [categoryId], references: [id])
+  images        ListingImage[]
+  priceHistory  ListingPriceHistory[]
+  favorites     Favorite[]
+  conversations Conversation[]
+  orders        Order[]
+  reports       Report[]
+
+  @@index([categoryId, status])
+  @@index([sellerId])
+  @@index([status, createdAt])
+}
+
+model ListingImage {
+  id        String  @id @default(cuid())
+  listingId String
+  url       String
+  publicId  String?
+  order     Int     @default(0)
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId])
+}
+
+model ListingPriceHistory {
+  id        String   @id @default(cuid())
+  listingId String
+  price     Decimal  @db.Decimal(10, 2)
+  changedAt DateTime @default(now())
+
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@index([listingId, changedAt])
+}
+
+enum ListingCondition {
+  NEW
+  LIKE_NEW
+  VERY_GOOD
+  GOOD
+  ACCEPTABLE
+  FOR_PARTS
+}
+
+enum ListingStatus {
+  DRAFT
+  ACTIVE
+  SOLD
+  REMOVED
+  FLAGGED
+}
+
+enum SaleType {
+  FIXED
+  AUCTION
+}
+
+// ---------------------------------------------------------------------------
+// Favoritos
+// ---------------------------------------------------------------------------
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String
+  listingId String
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  listing Listing @relation(fields: [listingId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, listingId])
+}
+
+// ---------------------------------------------------------------------------
+// Chat
+// ---------------------------------------------------------------------------
+
+model Conversation {
+  id        String   @id @default(cuid())
+  listingId String?
+  buyerId   String
+  sellerId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  listing  Listing?  @relation(fields: [listingId], references: [id], onDelete: SetNull)
+  buyer    User      @relation("BuyerConversations", fields: [buyerId], references: [id], onDelete: Cascade)
+  seller   User      @relation("SellerConversations", fields: [sellerId], references: [id], onDelete: Cascade)
+  messages Message[]
+
+  @@unique([listingId, buyerId, sellerId])
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+model Message {
+  id             String    @id @default(cuid())
+  conversationId String
+  senderId       String
+  body           String    @db.Text
+  readAt         DateTime?
+  createdAt      DateTime  @default(now())
+
+  conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId, createdAt])
+}
+
+// ---------------------------------------------------------------------------
+// Pedidos / pagamentos
+// ---------------------------------------------------------------------------
+
+model Order {
+  id               String      @id @default(cuid())
+  buyerId          String
+  sellerId         String
+  listingId        String
+  amount           Decimal     @db.Decimal(10, 2)
+  currency         String      @default("BRL")
+  status           OrderStatus @default(PENDING)
+  stripeSessionId  String?     @unique
+  /// reservado para o fluxo de escrow (Fase 2) — hoje não é usado
+  escrowReleasedAt DateTime?
+  shippingAddress  Json?
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  buyer   User    @relation("BuyerOrders", fields: [buyerId], references: [id])
+  seller  User    @relation("SellerOrders", fields: [sellerId], references: [id])
+  listing Listing @relation(fields: [listingId], references: [id])
+  review  Review?
+
+  @@index([buyerId])
+  @@index([sellerId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  COMPLETED
+  CANCELLED
+  DISPUTED
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  orderId   String   @unique
+  authorId  String
+  targetId  String
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  order  Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  author User  @relation("ReviewsWritten", fields: [authorId], references: [id], onDelete: Cascade)
+  target User  @relation("ReviewsReceived", fields: [targetId], references: [id], onDelete: Cascade)
+
+  @@index([targetId])
+}
+
+// ---------------------------------------------------------------------------
+// Denúncias / moderação
+// ---------------------------------------------------------------------------
+
+model Report {
+  id           String       @id @default(cuid())
+  reporterId   String
+  listingId    String?
+  targetUserId String?
+  reason       ReportReason
+  details      String?      @db.Text
+  status       ReportStatus @default(OPEN)
+  resolvedAt   DateTime?
+  createdAt    DateTime     @default(now())
+
+  reporter   User     @relation("ReportsFiled", fields: [reporterId], references: [id], onDelete: Cascade)
+  listing    Listing? @relation(fields: [listingId], references: [id], onDelete: Cascade)
+  targetUser User?    @relation("ReportsAgainst", fields: [targetUserId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+enum ReportReason {
+  COUNTERFEIT
+  PROHIBITED_ITEM
+  MISLEADING
+  SPAM
+  SCAM
+  OTHER
+}
+
+enum ReportStatus {
+  OPEN
+  REVIEWING
+  RESOLVED
+  DISMISSED
+}
+
+// ---------------------------------------------------------------------------
+// Afiliados — lojas parceiras, programas, ofertas externas e cliques
+//
+// Separado por completo do catálogo P2P (Listing): aqui o "produto interno"
+// é `Part` (peça de PC), um catálogo canônico comparável entre lojas — bem
+// diferente de um Listing, que é um item único de um vendedor específico.
+// ---------------------------------------------------------------------------
+
+model Store {
+  id             String      @id @default(cuid())
+  name           String
+  slug           String      @unique
+  logoUrl        String?
+  websiteUrl     String?
+  /// domínios autorizados para URL original/afiliada desta loja (defesa
+  /// contra cadastro de links de domínios não relacionados)
+  allowedDomains String[]
+  status         StoreStatus @default(ACTIVE)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  programs AffiliateProgram[]
+  offers   Offer[]
+  clicks   AffiliateClick[]
+}
+
+enum StoreStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model AffiliateProgram {
+  id                        String                 @id @default(cuid())
+  storeId                   String
+  name                      String
+  /// hoje só MANUAL está implementado; os demais valores existem para o
+  /// núcleo já aceitar provedores automáticos sem migração futura
+  providerType              AffiliateProviderType  @default(MANUAL)
+  status                    AffiliateProgramStatus @default(ACTIVE)
+  /// identificador público do afiliado (ex: tracking id) — não é segredo
+  affiliateIdentifier       String?
+  /// configuração específica do provedor (não deve conter segredos)
+  configuration             Json?
+  /// reservado para provedores automáticos (Fase 2) — nunca é enviado ao
+  /// client; nulo enquanto só o provedor manual existir
+  encryptedCredentials      String?
+  commissionDescription     String?
+  cookieDurationDescription String?
+  termsUrl                  String?
+  lastConnectionTest        DateTime?
+  lastSync                  DateTime?
+  createdAt                 DateTime               @default(now())
+  updatedAt                 DateTime               @updatedAt
+
+  store  Store   @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  offers Offer[]
+
+  @@index([storeId])
+}
+
+enum AffiliateProviderType {
+  MANUAL
+  API
+  FEED
+  LINK_BUILDER
+  URL_TEMPLATE
+  CSV
+  DISABLED
+}
+
+enum AffiliateProgramStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+}
+
+enum PartCategory {
+  CPU
+  GPU
+  RAM
+  STORAGE
+  PSU
+  MOTHERBOARD
+  CASE
+  COOLER
+  MONITOR
+}
+
+/// Catálogo canônico de peças de PC — o "produto interno" do sistema de
+/// afiliados e do montador.
+model Part {
+  id        String       @id @default(cuid())
+  category  PartCategory
+  brand     String
+  model     String
+  name      String
+  slug      String       @unique
+  /// specs livres por categoria (ex: { "socket": "AM4", "wattage": 550 })
+  specs     Json         @default("{}")
+  imageUrl  String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
+  offers              Offer[]
+  gameRecommendations GameRecommendedPart[]
+
+  @@index([category])
+}
+
+model Offer {
+  id                 String  @id @default(cuid())
+  partId             String
+  storeId            String
+  affiliateProgramId String?
+
+  sellerName       String?
+  normalPrice      Decimal           @db.Decimal(10, 2)
+  pixPrice         Decimal?          @db.Decimal(10, 2)
+  installmentPrice Decimal?          @db.Decimal(10, 2)
+  installmentCount Int?
+  shippingPrice    Decimal?          @db.Decimal(10, 2)
+  currency         String            @default("BRL")
+  availability     OfferAvailability @default(UNKNOWN)
+  condition        OfferCondition    @default(NEW)
+
+  originalUrl     String
+  /// preenchida pelo AffiliateLinkService (hoje = originalUrl no modo manual
+  /// se o admin não informar uma URL de afiliado específica)
+  affiliateUrl    String?
+  externalOfferId String?
+
+  /// MANUAL (cadastro pelo admin) é o único source implementado nesta fase
+  source        OfferSource @default(MANUAL)
+  status        OfferStatus @default(ACTIVE)
+  lastCheckedAt DateTime    @default(now())
+  expiresAt     DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  part             Part                @relation(fields: [partId], references: [id], onDelete: Cascade)
+  store            Store               @relation(fields: [storeId], references: [id], onDelete: Cascade)
+  affiliateProgram AffiliateProgram?   @relation(fields: [affiliateProgramId], references: [id], onDelete: SetNull)
+  priceHistory     OfferPriceHistory[]
+  clicks           AffiliateClick[]
+
+  @@index([partId, status])
+  @@index([storeId])
+}
+
+enum OfferAvailability {
+  IN_STOCK
+  OUT_OF_STOCK
+  UNKNOWN
+}
+
+enum OfferCondition {
+  NEW
+  USED
+  REFURBISHED
+}
+
+enum OfferSource {
+  MANUAL
+  AUTOMATIC
+}
+
+enum OfferStatus {
+  ACTIVE
+  INACTIVE
+  EXPIRED
+  PENDING_REVIEW
+}
+
+/// Histórico de preço — nunca é apagado ao atualizar uma oferta.
+model OfferPriceHistory {
+  id            String            @id @default(cuid())
+  offerId       String
+  normalPrice   Decimal           @db.Decimal(10, 2)
+  pixPrice      Decimal?          @db.Decimal(10, 2)
+  shippingPrice Decimal?          @db.Decimal(10, 2)
+  availability  OfferAvailability
+  capturedAt    DateTime          @default(now())
+
+  offer Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  @@index([offerId, capturedAt])
+}
+
+/// Clique registrado ao redirecionar por /go/[offerId]. Sem dados pessoais —
+/// só um id de sessão anônimo e contexto de navegação.
+model AffiliateClick {
+  id                 String          @id @default(cuid())
+  offerId            String
+  storeId            String
+  affiliateProgramId String?
+  anonymousSessionId String
+  sourcePage         String?
+  sourceType         ClickSourceType @default(OTHER)
+  campaign           String?
+  deviceType         String?
+  createdAt          DateTime        @default(now())
+
+  offer Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  store Store @relation(fields: [storeId], references: [id], onDelete: Cascade)
+
+  @@index([offerId])
+  @@index([storeId, createdAt])
+}
+
+enum ClickSourceType {
+  PRODUCT_PAGE
+  BUILDER
+  GAME_PAGE
+  OTHER
+}
+
+// ---------------------------------------------------------------------------
+// Jogos — recomendação de peças/montagens por meta de FPS
+// ---------------------------------------------------------------------------
+
+model Game {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String?  @db.Text
+  coverImage  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  recommendations GameRecommendedPart[]
+}
+
+/// Uma linha = "esta peça é recomendada para este jogo nesta combinação de
+/// resolução + FPS alvo". Várias linhas (uma por categoria de peça) formam
+/// a build recomendada exibida na página do jogo.
+model GameRecommendedPart {
+  id         String   @id @default(cuid())
+  gameId     String
+  partId     String
+  resolution String
+  targetFps  Int
+  note       String?
+  createdAt  DateTime @default(now())
+
+  game Game @relation(fields: [gameId], references: [id], onDelete: Cascade)
+  part Part @relation(fields: [partId], references: [id], onDelete: Cascade)
+
+  @@index([gameId, resolution, targetFps])
+}

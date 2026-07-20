@@ -1,0 +1,53 @@
+import { z } from "zod";
+
+export const storeSchema = z.object({
+  name: z.string().min(2).max(80),
+  slug: z.string().min(2).max(80).optional(),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+  websiteUrl: z.string().url().optional().or(z.literal("")),
+  allowedDomains: z
+    .array(z.string().min(3))
+    .min(1, "Informe pelo menos um domínio permitido"),
+});
+export type StoreInput = z.infer<typeof storeSchema>;
+
+export const programProviderTypes = [
+  "MANUAL",
+  "API",
+  "FEED",
+  "LINK_BUILDER",
+  "URL_TEMPLATE",
+  "CSV",
+  "DISABLED",
+] as const;
+
+export const programSchema = z.object({
+  storeId: z.string().min(1),
+  name: z.string().min(2).max(120),
+  providerType: z.enum(programProviderTypes).default("MANUAL"),
+  affiliateIdentifier: z.string().max(200).optional(),
+  commissionDescription: z.string().max(300).optional(),
+  cookieDurationDescription: z.string().max(100).optional(),
+  termsUrl: z.string().url().optional().or(z.literal("")),
+});
+export type ProgramInput = z.infer<typeof programSchema>;
+
+export const offerConditions = ["NEW", "USED", "REFURBISHED"] as const;
+export const offerAvailabilities = ["IN_STOCK", "OUT_OF_STOCK", "UNKNOWN"] as const;
+
+export const offerSchema = z.object({
+  partId: z.string().min(1),
+  storeId: z.string().min(1),
+  affiliateProgramId: z.string().optional(),
+  sellerName: z.string().max(120).optional(),
+  normalPrice: z.coerce.number().positive(),
+  pixPrice: z.coerce.number().positive().optional(),
+  installmentPrice: z.coerce.number().positive().optional(),
+  installmentCount: z.coerce.number().int().positive().optional(),
+  shippingPrice: z.coerce.number().nonnegative().optional(),
+  availability: z.enum(offerAvailabilities).default("UNKNOWN"),
+  condition: z.enum(offerConditions).default("NEW"),
+  originalUrl: z.string().url("URL original inválida"),
+  affiliateUrl: z.string().url("URL de afiliado inválida").optional().or(z.literal("")),
+});
+export type OfferInput = z.infer<typeof offerSchema>;
