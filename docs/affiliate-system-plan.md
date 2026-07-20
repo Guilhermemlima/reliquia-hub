@@ -32,7 +32,9 @@ O prompt original tem 34 seções (arquitetura completa de afiliados multi-prove
 - **Arquitetura de provedores (parte da Etapa 3)**: interface `AffiliateProvider` comum + `ManualAffiliateProvider` implementando-a, para provedores automáticos (Amazon, Awin etc.) serem plugados depois **sem** reescrever o núcleo. Nenhum provedor automático foi implementado — não há credenciais reais e o prompt proíbe inventar tokens/endpoints.
 - **Montador de PC + páginas de jogos**: construídos do zero (o usuário confirmou que quer essa vertical), usando o catálogo `Part` como "produto interno" do sistema de afiliados — é o encaixe natural, já que peças de PC são produtos comparáveis entre lojas (diferente de um `Listing` de colecionador).
 
-**Fora do escopo desta entrega** (documentado como próximos passos): `ExternalProduct`/`ProductMapping` (só fazem sentido quando existir busca/matching automático), fila de jobs assíncrona, importação CSV/feed, geração em lote, relatórios de conversão importados, alertas de preço, testes automatizados (o projeto ainda não tem framework de testes configurado).
+- **Etapa 5 — Importação CSV e geração em lote**: entregue numa segunda rodada. Admin sobe um CSV (`part_slug,store_slug,seller_name,price,pix_price,shipping_price,condition,availability,original_url,affiliate_url`), vê prévia, confirma, e recebe um resumo (processadas/criadas/já existentes/erros) linha a linha — reaproveita a mesma validação de domínio e detecção de duplicidade do cadastro manual único.
+
+**Fora do escopo desta entrega** (documentado como próximos passos): `ExternalProduct`/`ProductMapping` (só fazem sentido quando existir busca/matching automático), fila de jobs assíncrona (a importação CSV roda síncrona, limitada a 500 linhas por vez), importação de feed XML/JSON, relatórios de conversão importados, alertas de preço, testes automatizados (o projeto ainda não tem framework de testes configurado).
 
 ## 3. Novas tabelas (Prisma, aditivas — nenhuma tabela existente foi alterada)
 
@@ -59,12 +61,16 @@ Todos os enums (`AffiliateProviderType`, `OfferStatus`, `OfferAvailability`, `Of
 - `modules/affiliate/click.ts` — grava `AffiliateClick` a partir da rota `/go`.
 - `modules/builder/queries.ts` — monta as 3 estratégias (mais barato / menos lojas / melhor equilíbrio).
 - `modules/games/queries.ts` — jogos e peças recomendadas.
+- `modules/affiliate/csv.ts` — parser de CSV + template de exemplo (sem dependência externa).
+- `modules/affiliate/import-service.ts` — núcleo da importação em lote (validação, dedup, criação), separado do server action pra poder ser testado sem sessão HTTP.
+- `modules/affiliate/import-actions.ts` — server action `importOffersCsv` (checa admin, delega ao import-service).
 
 ## 5. Novas rotas
 
 - `GET /go/[offerId]` — redirecionamento seguro (nunca aceita URL arbitrária).
 - `/admin/afiliados` — visão geral (lojas, programas, ofertas, cliques).
 - `/admin/afiliados/ofertas` — CRUD de ofertas manuais.
+- `/admin/afiliados/importar` — importação em lote via CSV (prévia + resumo).
 - `/montador` — montador de PC (3 estratégias de preço).
 - `/jogos`, `/jogos/[slug]` — páginas de jogos com build recomendada.
 - `/politica-de-afiliados` — transparência comercial.

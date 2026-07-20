@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { Metadata } from "next";
+import { Upload } from "lucide-react";
 import { getAllOffers } from "@/modules/affiliate/queries";
 import { getActiveStores } from "@/modules/affiliate/queries";
 import { getAllParts, PART_CATEGORY_LABELS } from "@/modules/parts/queries";
@@ -9,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import { OfferFormDialog } from "@/components/admin/affiliate/offer-form-dialog";
 import { OfferRow } from "@/components/admin/affiliate/offer-row";
 
@@ -25,10 +28,15 @@ export default async function AdminOffersPage() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-heading text-2xl font-semibold">Ofertas de afiliados</h1>
-        <OfferFormDialog
-          parts={parts.map((p) => ({ id: p.id, name: p.name, category: p.category }))}
-          stores={stores.map((s) => ({ id: s.id, name: s.name }))}
-        />
+        <div className="flex gap-2">
+          <Button variant="outline" render={<Link href="/admin/afiliados/importar" />}>
+            <Upload /> Importar CSV
+          </Button>
+          <OfferFormDialog
+            parts={parts.map((p) => ({ id: p.id, name: p.name, category: p.category }))}
+            stores={stores.map((s) => ({ id: s.id, name: s.name }))}
+          />
+        </div>
       </div>
 
       {parts.length === 0 && (

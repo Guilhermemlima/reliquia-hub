@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MousePointerClick, Tags, ArrowRight } from "lucide-react";
+import { MousePointerClick, Tags, ArrowRight, Upload } from "lucide-react";
 import { getStores, getClickStats } from "@/modules/affiliate/queries";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,9 @@ export default async function AdminAffiliatesPage() {
           Programas de afiliados
         </h1>
         <div className="flex gap-2">
+          <Button variant="outline" render={<Link href="/admin/afiliados/importar" />}>
+            <Upload /> Importar CSV
+          </Button>
           <ProgramFormDialog stores={stores.map((s) => ({ id: s.id, name: s.name }))} />
           <StoreFormDialog />
         </div>
