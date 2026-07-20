@@ -1,9 +1,11 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { MousePointerClick, Tags, ArrowRight, Upload } from "lucide-react";
+import { MousePointerClick, Tags, ArrowRight, Upload, ListChecks, BarChart3 } from "lucide-react";
 import { getStores, getClickStats } from "@/modules/affiliate/queries";
+import { getMatchReviewCount } from "@/modules/affiliate/review-queries";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { StoreFormDialog } from "@/components/admin/affiliate/store-form-dialog";
 import { ProgramFormDialog } from "@/components/admin/affiliate/program-form-dialog";
 import { StoreCard } from "@/components/admin/affiliate/store-card";
@@ -11,7 +13,11 @@ import { StoreCard } from "@/components/admin/affiliate/store-card";
 export const metadata: Metadata = { title: "Afiliados · Admin" };
 
 export default async function AdminAffiliatesPage() {
-  const [stores, clickStats] = await Promise.all([getStores(), getClickStats()]);
+  const [stores, clickStats, pendingReviewCount] = await Promise.all([
+    getStores(),
+    getClickStats(),
+    getMatchReviewCount(),
+  ]);
 
   return (
     <div>
@@ -22,6 +28,17 @@ export default async function AdminAffiliatesPage() {
         <div className="flex gap-2">
           <Button variant="outline" render={<Link href="/admin/afiliados/importar" />}>
             <Upload /> Importar CSV
+          </Button>
+          <Button variant="outline" render={<Link href="/admin/afiliados/revisao" />}>
+            <ListChecks /> Revisão
+            {pendingReviewCount > 0 && (
+              <Badge variant="destructive" className="ml-1">
+                {pendingReviewCount}
+              </Badge>
+            )}
+          </Button>
+          <Button variant="outline" render={<Link href="/admin/afiliados/relatorios" />}>
+            <BarChart3 /> Relatórios
           </Button>
           <ProgramFormDialog stores={stores.map((s) => ({ id: s.id, name: s.name }))} />
           <StoreFormDialog />

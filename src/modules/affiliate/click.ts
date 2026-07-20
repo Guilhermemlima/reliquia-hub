@@ -4,8 +4,9 @@ export const clickSourceTypes = ["PRODUCT_PAGE", "BUILDER", "GAME_PAGE", "OTHER"
 export type ClickSourceType = (typeof clickSourceTypes)[number];
 
 export function normalizeSourceType(value: string | null): ClickSourceType {
-  return (clickSourceTypes as readonly string[]).includes(value ?? "")
-    ? (value as ClickSourceType)
+  const upper = (value ?? "").toUpperCase();
+  return (clickSourceTypes as readonly string[]).includes(upper)
+    ? (upper as ClickSourceType)
     : "OTHER";
 }
 

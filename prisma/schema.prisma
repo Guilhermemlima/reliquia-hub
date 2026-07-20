@@ -458,6 +458,10 @@ model Part {
   model     String
   name      String
   slug      String       @unique
+  /// código de barras — usado para associação automática de alta confiança
+  ean       String?
+  /// número de peça do fabricante — usado para associação automática
+  mpn       String?
   /// specs livres por categoria (ex: { "socket": "AM4", "wattage": 550 })
   specs     Json         @default("{}")
   imageUrl  String?
@@ -466,7 +470,10 @@ model Part {
 
   offers              Offer[]
   gameRecommendations GameRecommendedPart[]
+  matchReviews        OfferMatchReview[]
 
+  @@index([ean])
+  @@index([mpn])
   @@index([category])
 }
 
@@ -548,6 +555,32 @@ model OfferPriceHistory {
   offer Offer @relation(fields: [offerId], references: [id], onDelete: Cascade)
 
   @@index([offerId, capturedAt])
+}
+
+/// Fila de revisão para associações de baixa/média confiança entre uma
+/// linha importada (CSV/feed) e uma peça do catálogo. `payload` guarda os
+/// dados da oferta prontos para criar assim que um admin aprovar.
+model OfferMatchReview {
+  id              String                 @id @default(cuid())
+  rawLabel        String
+  candidatePartId String?
+  confidenceScore Float
+  matchMethod     String
+  status          OfferMatchReviewStatus @default(PENDING)
+  payload         Json
+  reviewedBy      String?
+  reviewedAt      DateTime?
+  createdAt       DateTime               @default(now())
+
+  candidatePart Part? @relation(fields: [candidatePartId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+}
+
+enum OfferMatchReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 /// Clique registrado ao redirecionar por /go/[offerId]. Sem dados pessoais —

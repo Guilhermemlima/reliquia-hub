@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
 import { Upload, Download, Loader2 } from "lucide-react";
@@ -132,7 +133,7 @@ export function ImportClient() {
                 <TableBody>
                   {rows.slice(0, PREVIEW_LIMIT).map((row, i) => (
                     <TableRow key={i}>
-                      <TableCell>{row.part_slug}</TableCell>
+                      <TableCell>{row.part_slug || row.part_title || "(associação automática)"}</TableCell>
                       <TableCell>{row.store_slug}</TableCell>
                       <TableCell>{row.price}</TableCell>
                       <TableCell className="max-w-xs truncate">{row.original_url}</TableCell>
@@ -154,7 +155,7 @@ export function ImportClient() {
         <Card>
           <CardContent className="pt-6">
             <h2 className="mb-3 font-heading text-lg font-semibold">Resultado</h2>
-            <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-5">
               <div className="rounded-lg border p-3 text-center">
                 <p className="text-xl font-semibold">{summary.total}</p>
                 <p className="text-xs text-muted-foreground">Processadas</p>
@@ -168,10 +169,24 @@ export function ImportClient() {
                 <p className="text-xs text-muted-foreground">Já existentes</p>
               </div>
               <div className="rounded-lg border p-3 text-center">
+                <p className="text-xl font-semibold text-primary">{summary.pendingReview}</p>
+                <p className="text-xs text-muted-foreground">Para revisão</p>
+              </div>
+              <div className="rounded-lg border p-3 text-center">
                 <p className="text-xl font-semibold text-destructive">{summary.errors}</p>
                 <p className="text-xs text-muted-foreground">Com erro</p>
               </div>
             </div>
+            {summary.pendingReview > 0 && (
+              <p className="mb-3 text-sm text-muted-foreground">
+                {summary.pendingReview} linha(s) foram associadas com confiança
+                média — confira em{" "}
+                <Link href="/admin/afiliados/revisao" className="text-primary underline">
+                  Revisão de associações
+                </Link>
+                .
+              </p>
+            )}
             <div className="max-h-80 space-y-1 overflow-y-auto">
               {summary.results
                 .filter((r) => r.status !== "created")

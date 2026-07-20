@@ -1,5 +1,13 @@
 export const OFFER_CSV_HEADERS = [
+  // deixe em branco para tentar associação automática por ean/mpn/marca+modelo
   "part_slug",
+  // usado como referência humana e para associação aproximada quando
+  // part_slug estiver em branco
+  "part_title",
+  "ean",
+  "mpn",
+  "part_brand",
+  "part_model",
   "store_slug",
   "seller_name",
   "price",
@@ -94,8 +102,13 @@ export function csvRowsToOfferRows(rows: string[][]): {
 }
 
 export function offerCsvTemplate(): string {
-  const example = [
+  const exactMatch = [
     "cpu-amd-ryzen-5-5500",
+    "",
+    "",
+    "",
+    "",
+    "",
     "kabum",
     "KaBuM",
     "649.00",
@@ -106,5 +119,24 @@ export function offerCsvTemplate(): string {
     "https://www.kabum.com.br/produto/exemplo",
     "",
   ];
-  return [OFFER_CSV_HEADERS.join(","), example.join(",")].join("\n");
+  const autoMatch = [
+    "",
+    "Placa de vídeo RX 6600 8GB",
+    "",
+    "",
+    "AMD",
+    "RX 6600",
+    "pichau",
+    "Pichau",
+    "1399.00",
+    "1299.00",
+    "0",
+    "NEW",
+    "IN_STOCK",
+    "https://www.pichau.com.br/produto/exemplo",
+    "",
+  ];
+  return [OFFER_CSV_HEADERS.join(","), exactMatch.join(","), autoMatch.join(",")].join(
+    "\n"
+  );
 }
