@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gem } from "lucide-react";
+import Image from "next/image";
 
 const columns = [
   {
@@ -41,12 +41,13 @@ export function SiteFooter() {
     <footer className="mt-16 border-t bg-muted/30">
       <div className="container mx-auto grid gap-8 px-4 py-10 sm:grid-cols-2 md:grid-cols-4">
         <div>
-          <div className="flex items-center gap-2">
-            <Gem className="size-5 text-primary" />
-            <span className="font-heading text-lg font-semibold">
-              Relíquia Hub
-            </span>
-          </div>
+          <Image
+            src="/logo-full.png"
+            alt="Relíquia Hub"
+            width={1690}
+            height={955}
+            className="h-8 w-auto"
+          />
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
             O marketplace feito para colecionadores comprarem e venderem com
             segurança e reputação.

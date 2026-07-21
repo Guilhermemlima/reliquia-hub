@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Gem, Plus } from "lucide-react";
+import Image from "next/image";
+import { Plus } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { getAllCategoriesFlat } from "@/modules/categories/queries";
 import { Button } from "@/components/ui/button";
@@ -18,11 +19,15 @@ export async function SiteHeader() {
   return (
     <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/80">
       <div className="container mx-auto flex h-16 items-center gap-4 px-4">
-        <Link href="/" className="flex shrink-0 items-center gap-2">
-          <Gem className="size-6 text-primary" />
-          <span className="font-heading text-lg font-semibold tracking-tight">
-            Relíquia Hub
-          </span>
+        <Link href="/" className="flex shrink-0 items-center">
+          <Image
+            src="/logo-full.png"
+            alt="Relíquia Hub"
+            width={1690}
+            height={955}
+            priority
+            className="h-9 w-auto"
+          />
         </Link>
 
         <SearchBar className="hidden max-w-xl flex-1 md:block" />
