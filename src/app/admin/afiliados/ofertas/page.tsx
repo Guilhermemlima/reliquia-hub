@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { Upload } from "lucide-react";
 import { getAllOffers } from "@/modules/affiliate/queries";
 import { getActiveStores } from "@/modules/affiliate/queries";
-import { getAllParts, PART_CATEGORY_LABELS } from "@/modules/parts/queries";
+import { getPartOptions, PART_CATEGORY_LABELS } from "@/modules/parts/queries";
 import {
   Table,
   TableBody,
@@ -21,7 +21,7 @@ export default async function AdminOffersPage() {
   const [offers, stores, parts] = await Promise.all([
     getAllOffers(),
     getActiveStores(),
-    getAllParts(),
+    getPartOptions(),
   ]);
 
   return (

@@ -72,6 +72,27 @@ export default function AffiliatePolicyPage() {
             pessoalmente.
           </p>
         </section>
+
+        <section>
+          <h2 className="mb-2 font-heading text-xl font-semibold text-foreground">
+            Créditos do catálogo técnico
+          </h2>
+          <p>
+            As especificações técnicas de parte das peças do Montador de PC
+            têm como base o banco de dados público{" "}
+            <a
+              href="https://github.com/buildcores/buildcores-open-db"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-foreground underline"
+            >
+              BuildCores OpenDB
+            </a>
+            , distribuído sob a licença Open Data Commons Attribution (ODC-By).
+            Preços, imagens e links de compra são cadastrados e mantidos
+            separadamente pela equipe do Relíquia Hub.
+          </p>
+        </section>
       </div>
     </div>
   );

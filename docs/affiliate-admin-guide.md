@@ -82,7 +82,30 @@ quantas revisões estão pendentes.
 - **Peças sem oferta ativa**: itens do catálogo que hoje não aparecem no
   montador por falta de qualquer oferta cadastrada.
 
-## 7. Ativar/desativar uma loja ou uma oferta
+## 7. Curar o catálogo de peças peça por peça
+
+`/admin/pecas` — pensada pra ir associando link e imagem aos poucos, sem
+precisar de CSV. A tela mostra o catálogo inteiro (hoje ~2.400 peças
+importadas do [BuildCores OpenDB](https://github.com/buildcores/buildcores-open-db),
+que traz especificação técnica mas **não** traz preço, imagem nem link de
+compra — isso fica por sua conta) com busca por nome/marca/modelo, filtro
+por categoria e um filtro **"Só sem link"** pra focar no que ainda falta.
+
+Em cada linha:
+
+- **Ícone de lápis**: cola a URL de uma imagem do produto — fica salva na
+  peça (usada em qualquer oferta dela, no montador e nas listagens de
+  ofertas).
+- **Associar link / Adicionar link**: abre o mesmo formulário de oferta
+  manual (item 3), só que já com a peça fixada — só falta escolher a loja,
+  preço e colar o link.
+
+Pra um lançamento novo que ainda não existe no catálogo, use o botão
+**Nova peça** no topo da página — cria a peça (categoria, marca, modelo,
+nome e opcionalmente EAN/MPN/imagem) direto pelo admin, sem precisar de mim
+nem de CSV. Depois é só associar o link normalmente.
+
+## 8. Ativar/desativar uma loja ou uma oferta
 
 - Loja: switch no card da loja em `/admin/afiliados`.
 - Oferta: botão **Ativar/Desativar** na tabela `/admin/afiliados/ofertas`.

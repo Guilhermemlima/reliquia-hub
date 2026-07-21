@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getPartsByCategory } from "@/modules/parts/queries";
+import { getBuilderParts } from "@/modules/parts/queries";
 import { BuilderClient } from "@/components/builder/builder-client";
 
 export const metadata: Metadata = {
@@ -14,7 +14,7 @@ export default async function BuilderPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const groups = await getPartsByCategory();
+  const groups = await getBuilderParts();
 
   const initialSelection: Record<string, string> = {};
   for (const group of groups) {

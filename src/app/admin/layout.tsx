@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ShieldCheck, LayoutDashboard, Flag, Store, Users, Link2 } from "lucide-react";
+import { ShieldCheck, LayoutDashboard, Flag, Store, Users, Link2, Cpu } from "lucide-react";
 import { auth } from "@/lib/auth";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
 
@@ -8,6 +8,7 @@ const items = [
   { href: "/admin", label: "Visão geral", icon: LayoutDashboard },
   { href: "/admin/listings", label: "Anúncios", icon: Store },
   { href: "/admin/afiliados", label: "Afiliados", icon: Link2 },
+  { href: "/admin/pecas", label: "Peças", icon: Cpu },
   { href: "/admin/reports", label: "Denúncias", icon: Flag },
   { href: "/admin/users", label: "Usuários", icon: Users },
 ];
