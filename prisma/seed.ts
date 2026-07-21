@@ -374,13 +374,14 @@ async function seedAffiliateAndPcBuilder() {
   }
 
   const partsData: {
-    category: "CPU" | "GPU" | "RAM" | "STORAGE" | "PSU" | "MOTHERBOARD" | "CASE";
+    category: "CPU" | "GPU" | "RAM" | "STORAGE" | "PSU" | "MOTHERBOARD" | "CASE" | "COOLER";
     brand: string;
     model: string;
     name: string;
     specs: Record<string, unknown>;
     prices: { storeIndex: number; price: number; pix: number }[];
   }[] = [
+    // ---- CPU ----
     {
       category: "CPU",
       brand: "AMD",
@@ -394,6 +395,64 @@ async function seedAffiliateAndPcBuilder() {
       ],
     },
     {
+      category: "CPU",
+      brand: "AMD",
+      model: "Ryzen 5 5600",
+      name: "AMD Ryzen 5 5600",
+      specs: { socket: "AM4", cores: 6, threads: 12 },
+      prices: [
+        { storeIndex: 0, price: 849, pix: 789 },
+        { storeIndex: 1, price: 879, pix: 819 },
+      ],
+    },
+    {
+      category: "CPU",
+      brand: "AMD",
+      model: "Ryzen 7 5700X",
+      name: "AMD Ryzen 7 5700X",
+      specs: { socket: "AM4", cores: 8, threads: 16 },
+      prices: [
+        { storeIndex: 1, price: 1099, pix: 1029 },
+        { storeIndex: 2, price: 1129, pix: 1059 },
+      ],
+    },
+    {
+      category: "CPU",
+      brand: "Intel",
+      model: "Core i3-12100F",
+      name: "Intel Core i3-12100F",
+      specs: { socket: "LGA1700", cores: 4, threads: 8 },
+      prices: [
+        { storeIndex: 0, price: 599, pix: 559 },
+        { storeIndex: 2, price: 619, pix: 579 },
+      ],
+    },
+    {
+      category: "CPU",
+      brand: "Intel",
+      model: "Core i5-12400F",
+      name: "Intel Core i5-12400F",
+      specs: { socket: "LGA1700", cores: 6, threads: 12 },
+      prices: [
+        { storeIndex: 0, price: 799, pix: 749 },
+        { storeIndex: 1, price: 829, pix: 779 },
+        { storeIndex: 2, price: 789, pix: 739 },
+      ],
+    },
+    {
+      category: "CPU",
+      brand: "Intel",
+      model: "Core i5-13400F",
+      name: "Intel Core i5-13400F",
+      specs: { socket: "LGA1700", cores: 10, threads: 16 },
+      prices: [
+        { storeIndex: 0, price: 1199, pix: 1129 },
+        { storeIndex: 1, price: 1239, pix: 1159 },
+      ],
+    },
+
+    // ---- GPU ----
+    {
       category: "GPU",
       brand: "AMD",
       model: "RX 6600",
@@ -405,6 +464,63 @@ async function seedAffiliateAndPcBuilder() {
       ],
     },
     {
+      category: "GPU",
+      brand: "AMD",
+      model: "RX 6650 XT",
+      name: "AMD Radeon RX 6650 XT 8GB",
+      specs: { recommendedPsuWatts: 550, vram: "8GB" },
+      prices: [
+        { storeIndex: 1, price: 1699, pix: 1589 },
+        { storeIndex: 2, price: 1729, pix: 1619 },
+      ],
+    },
+    {
+      category: "GPU",
+      brand: "AMD",
+      model: "RX 7600",
+      name: "AMD Radeon RX 7600 8GB",
+      specs: { recommendedPsuWatts: 550, vram: "8GB" },
+      prices: [
+        { storeIndex: 0, price: 1899, pix: 1779 },
+        { storeIndex: 2, price: 1929, pix: 1809 },
+      ],
+    },
+    {
+      category: "GPU",
+      brand: "NVIDIA",
+      model: "RTX 3060",
+      name: "NVIDIA GeForce RTX 3060 12GB",
+      specs: { recommendedPsuWatts: 550, vram: "12GB" },
+      prices: [
+        { storeIndex: 0, price: 1999, pix: 1869 },
+        { storeIndex: 1, price: 2049, pix: 1919 },
+      ],
+    },
+    {
+      category: "GPU",
+      brand: "NVIDIA",
+      model: "RTX 4060",
+      name: "NVIDIA GeForce RTX 4060 8GB",
+      specs: { recommendedPsuWatts: 550, vram: "8GB" },
+      prices: [
+        { storeIndex: 1, price: 2199, pix: 2059 },
+        { storeIndex: 2, price: 2249, pix: 2109 },
+      ],
+    },
+    {
+      category: "GPU",
+      brand: "NVIDIA",
+      model: "GTX 1660 Super",
+      name: "NVIDIA GeForce GTX 1660 Super 6GB",
+      specs: { recommendedPsuWatts: 450, vram: "6GB" },
+      prices: [
+        { storeIndex: 0, price: 999, pix: 929 },
+        { storeIndex: 2, price: 1029, pix: 959 },
+      ],
+    },
+
+    // ---- MOTHERBOARD ----
+    {
       category: "MOTHERBOARD",
       brand: "ASUS",
       model: "Prime A520M-A",
@@ -415,6 +531,52 @@ async function seedAffiliateAndPcBuilder() {
         { storeIndex: 2, price: 559, pix: 519 },
       ],
     },
+    {
+      category: "MOTHERBOARD",
+      brand: "ASUS",
+      model: "Prime B550M-A",
+      name: "Placa-mãe ASUS Prime B550M-A (AM4)",
+      specs: { socket: "AM4", memoryType: "DDR4" },
+      prices: [
+        { storeIndex: 0, price: 749, pix: 699 },
+        { storeIndex: 1, price: 779, pix: 729 },
+      ],
+    },
+    {
+      category: "MOTHERBOARD",
+      brand: "Gigabyte",
+      model: "B450M DS3H",
+      name: "Placa-mãe Gigabyte B450M DS3H (AM4)",
+      specs: { socket: "AM4", memoryType: "DDR4" },
+      prices: [
+        { storeIndex: 1, price: 499, pix: 465 },
+        { storeIndex: 2, price: 519, pix: 485 },
+      ],
+    },
+    {
+      category: "MOTHERBOARD",
+      brand: "ASRock",
+      model: "B660M-HDV",
+      name: "Placa-mãe ASRock B660M-HDV (LGA1700)",
+      specs: { socket: "LGA1700", memoryType: "DDR4" },
+      prices: [
+        { storeIndex: 0, price: 699, pix: 649 },
+        { storeIndex: 2, price: 719, pix: 669 },
+      ],
+    },
+    {
+      category: "MOTHERBOARD",
+      brand: "MSI",
+      model: "H610M-E",
+      name: "Placa-mãe MSI H610M-E (LGA1700)",
+      specs: { socket: "LGA1700", memoryType: "DDR4" },
+      prices: [
+        { storeIndex: 1, price: 579, pix: 539 },
+        { storeIndex: 2, price: 599, pix: 559 },
+      ],
+    },
+
+    // ---- RAM ----
     {
       category: "RAM",
       brand: "Kingston",
@@ -428,6 +590,52 @@ async function seedAffiliateAndPcBuilder() {
       ],
     },
     {
+      category: "RAM",
+      brand: "Kingston",
+      model: "Fury Beast 8GB 3200MHz",
+      name: "Memória Kingston Fury Beast 8GB DDR4 3200MHz",
+      specs: { memoryType: "DDR4", capacityGb: 8, speedMhz: 3200 },
+      prices: [
+        { storeIndex: 0, price: 149, pix: 139 },
+        { storeIndex: 2, price: 155, pix: 145 },
+      ],
+    },
+    {
+      category: "RAM",
+      brand: "Kingston",
+      model: "Fury Beast 32GB (2x16) 3200MHz",
+      name: "Memória Kingston Fury Beast 32GB DDR4 3200MHz",
+      specs: { memoryType: "DDR4", capacityGb: 32, speedMhz: 3200 },
+      prices: [
+        { storeIndex: 1, price: 569, pix: 529 },
+        { storeIndex: 2, price: 589, pix: 549 },
+      ],
+    },
+    {
+      category: "RAM",
+      brand: "XPG",
+      model: "Gammix D10 16GB 3600MHz",
+      name: "Memória XPG Gammix D10 16GB DDR4 3600MHz",
+      specs: { memoryType: "DDR4", capacityGb: 16, speedMhz: 3600 },
+      prices: [
+        { storeIndex: 0, price: 329, pix: 305 },
+        { storeIndex: 1, price: 339, pix: 315 },
+      ],
+    },
+    {
+      category: "RAM",
+      brand: "Corsair",
+      model: "Vengeance LPX 16GB 3200MHz",
+      name: "Memória Corsair Vengeance LPX 16GB DDR4 3200MHz",
+      specs: { memoryType: "DDR4", capacityGb: 16, speedMhz: 3200 },
+      prices: [
+        { storeIndex: 1, price: 309, pix: 289 },
+        { storeIndex: 2, price: 319, pix: 299 },
+      ],
+    },
+
+    // ---- STORAGE ----
+    {
       category: "STORAGE",
       brand: "Kingston",
       model: "NV2 1TB NVMe",
@@ -438,6 +646,52 @@ async function seedAffiliateAndPcBuilder() {
         { storeIndex: 1, price: 359, pix: 329 },
       ],
     },
+    {
+      category: "STORAGE",
+      brand: "Kingston",
+      model: "NV2 500GB NVMe",
+      name: "SSD Kingston NV2 500GB NVMe",
+      specs: { capacityGb: 500, interface: "NVMe" },
+      prices: [
+        { storeIndex: 0, price: 199, pix: 185 },
+        { storeIndex: 2, price: 209, pix: 195 },
+      ],
+    },
+    {
+      category: "STORAGE",
+      brand: "Crucial",
+      model: "P3 1TB NVMe",
+      name: "SSD Crucial P3 1TB NVMe",
+      specs: { capacityGb: 1000, interface: "NVMe" },
+      prices: [
+        { storeIndex: 1, price: 369, pix: 345 },
+        { storeIndex: 2, price: 379, pix: 355 },
+      ],
+    },
+    {
+      category: "STORAGE",
+      brand: "WD",
+      model: "Green 480GB SATA",
+      name: "SSD WD Green 480GB SATA",
+      specs: { capacityGb: 480, interface: "SATA" },
+      prices: [
+        { storeIndex: 0, price: 159, pix: 149 },
+        { storeIndex: 1, price: 165, pix: 155 },
+      ],
+    },
+    {
+      category: "STORAGE",
+      brand: "Seagate",
+      model: "Barracuda 1TB",
+      name: "HD Seagate Barracuda 1TB",
+      specs: { capacityGb: 1000, interface: "SATA-HDD" },
+      prices: [
+        { storeIndex: 1, price: 279, pix: 259 },
+        { storeIndex: 2, price: 289, pix: 269 },
+      ],
+    },
+
+    // ---- PSU ----
     {
       category: "PSU",
       brand: "Corsair",
@@ -450,6 +704,52 @@ async function seedAffiliateAndPcBuilder() {
       ],
     },
     {
+      category: "PSU",
+      brand: "Corsair",
+      model: "CV650",
+      name: "Fonte Corsair CV650 650W 80 Plus Bronze",
+      specs: { wattage: 650, certification: "80 Plus Bronze" },
+      prices: [
+        { storeIndex: 0, price: 459, pix: 425 },
+        { storeIndex: 1, price: 479, pix: 445 },
+      ],
+    },
+    {
+      category: "PSU",
+      brand: "Corsair",
+      model: "RM750",
+      name: "Fonte Corsair RM750 750W 80 Plus Gold",
+      specs: { wattage: 750, certification: "80 Plus Gold" },
+      prices: [
+        { storeIndex: 1, price: 799, pix: 745 },
+        { storeIndex: 2, price: 819, pix: 765 },
+      ],
+    },
+    {
+      category: "PSU",
+      brand: "XPG",
+      model: "Core Reactor 600W",
+      name: "Fonte XPG Core Reactor 600W 80 Plus Bronze",
+      specs: { wattage: 600, certification: "80 Plus Bronze" },
+      prices: [
+        { storeIndex: 0, price: 449, pix: 415 },
+        { storeIndex: 2, price: 465, pix: 430 },
+      ],
+    },
+    {
+      category: "PSU",
+      brand: "EVGA",
+      model: "500W 80+ White",
+      name: "Fonte EVGA 500W 80 Plus White",
+      specs: { wattage: 500, certification: "80 Plus White" },
+      prices: [
+        { storeIndex: 1, price: 259, pix: 239 },
+        { storeIndex: 2, price: 269, pix: 249 },
+      ],
+    },
+
+    // ---- CASE ----
+    {
       category: "CASE",
       brand: "Gamemax",
       model: "Spark",
@@ -458,6 +758,82 @@ async function seedAffiliateAndPcBuilder() {
       prices: [
         { storeIndex: 1, price: 219, pix: 199 },
         { storeIndex: 2, price: 229, pix: 209 },
+      ],
+    },
+    {
+      category: "CASE",
+      brand: "Aerocool",
+      model: "Cylon Mini",
+      name: "Gabinete Aerocool Cylon Mini",
+      specs: { formFactor: "Micro-ATX" },
+      prices: [
+        { storeIndex: 0, price: 179, pix: 165 },
+        { storeIndex: 1, price: 189, pix: 175 },
+      ],
+    },
+    {
+      category: "CASE",
+      brand: "Redragon",
+      model: "Diamondback",
+      name: "Gabinete Redragon Diamondback",
+      specs: { formFactor: "ATX" },
+      prices: [
+        { storeIndex: 0, price: 259, pix: 239 },
+        { storeIndex: 2, price: 269, pix: 249 },
+      ],
+    },
+    {
+      category: "CASE",
+      brand: "Pichau",
+      model: "Mancer Zero",
+      name: "Gabinete Pichau Mancer Zero",
+      specs: { formFactor: "ATX" },
+      prices: [
+        { storeIndex: 1, price: 299, pix: 279 },
+      ],
+    },
+    {
+      category: "CASE",
+      brand: "Gamdias",
+      model: "Talos E1",
+      name: "Gabinete Gamdias Talos E1",
+      specs: { formFactor: "ATX" },
+      prices: [
+        { storeIndex: 2, price: 249, pix: 229 },
+      ],
+    },
+
+    // ---- COOLER ----
+    {
+      category: "COOLER",
+      brand: "Cooler Master",
+      model: "Hyper 212",
+      name: "Cooler Cooler Master Hyper 212 Black Edition",
+      specs: { type: "air", sockets: ["AM4", "LGA1700"] },
+      prices: [
+        { storeIndex: 0, price: 199, pix: 185 },
+        { storeIndex: 1, price: 209, pix: 195 },
+      ],
+    },
+    {
+      category: "COOLER",
+      brand: "PCYes",
+      model: "Fury 120mm",
+      name: "Cooler PCYes Fury 120mm",
+      specs: { type: "air", sockets: ["AM4", "LGA1700"] },
+      prices: [
+        { storeIndex: 2, price: 89, pix: 82 },
+      ],
+    },
+    {
+      category: "COOLER",
+      brand: "XPG",
+      model: "Levante 240 AiO",
+      name: "Water Cooler XPG Levante 240 (AiO)",
+      specs: { type: "liquid", radiatorMm: 240, sockets: ["AM4", "LGA1700"] },
+      prices: [
+        { storeIndex: 0, price: 449, pix: 415 },
+        { storeIndex: 2, price: 469, pix: 435 },
       ],
     },
   ];

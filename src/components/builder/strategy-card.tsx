@@ -52,7 +52,7 @@ export function StrategyCard({
       </Card>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-h-[85vh] overflow-x-hidden overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
             <DialogDescription>
@@ -61,27 +61,27 @@ export function StrategyCard({
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
+          <div className="space-y-2 overflow-x-hidden">
             {strategy.items.map((item) => {
               const part = partLabels[item.partId];
               return (
                 <div
                   key={item.offerId}
-                  className="flex items-center justify-between gap-3 rounded-lg border p-3"
+                  className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border p-3"
                 >
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1 basis-32 overflow-hidden">
                     <p className="truncate text-sm font-medium">
                       {part ? `${PART_CATEGORY_LABELS[part.category] ?? part.category} — ${part.name}` : item.partId}
                     </p>
-                    <p className="text-xs text-muted-foreground">{item.storeName}</p>
+                    <p className="truncate text-xs text-muted-foreground">{item.storeName}</p>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
-                    <span className="font-medium">{formatPrice(item.price)}</span>
+                    <span className="whitespace-nowrap font-medium">{formatPrice(item.price)}</span>
                     <a
                       href={`/go/${item.offerId}?source=builder`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/80"
+                      className="inline-flex shrink-0 items-center gap-1 whitespace-nowrap rounded-md bg-primary px-3 py-1.5 text-sm text-primary-foreground hover:bg-primary/80"
                     >
                       Comprar <ExternalLink className="size-3.5" />
                     </a>
