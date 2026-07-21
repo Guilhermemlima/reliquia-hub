@@ -38,6 +38,11 @@ linguagem simples:
 - **Nenhum parâmetro de afiliado inventado**: o modo manual nunca
   modifica a URL informada pelo admin além de validar o domínio; nenhuma
   string de tracking é adicionada por conta própria.
+- **Prévia de link ≠ scraping**: `modules/affiliate/link-preview.ts` só lê
+  as tags `og:title`/`og:image` que a própria página expõe publicamente
+  para gerar preview (a mesma técnica de WhatsApp/Slack) — usado na
+  importação CSV pra sugerir nome/imagem de peça nova. Não extrai preço,
+  estoque, nem qualquer outro dado comercial da página.
 - **Nenhum link de domínio não autorizado**: reforçado tanto no cadastro
   quanto no redirecionamento (`affiliate-security.md`).
 - **Comissão nunca é o único critério de ordenação**: as três estratégias

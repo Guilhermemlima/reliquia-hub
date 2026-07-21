@@ -48,6 +48,7 @@ export default async function BuilderPage({
               name: p.name,
               brand: p.brand,
               model: p.model,
+              imageUrl: p.imageUrl,
             })),
           }))}
           initialSelection={

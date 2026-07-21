@@ -69,6 +69,7 @@ export default async function AdminOffersPage() {
                   offer={{
                     id: offer.id,
                     partName: `${PART_CATEGORY_LABELS[offer.part.category] ?? offer.part.category} — ${offer.part.name}`,
+                    partImageUrl: offer.part.imageUrl,
                     storeName: offer.store.name,
                     price: offer.normalPrice.toString(),
                     status: offer.status,

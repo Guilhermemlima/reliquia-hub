@@ -2,6 +2,7 @@
 
 import { useTransition } from "react";
 import { toast } from "sonner";
+import { ImageOff } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,6 +22,7 @@ export function OfferRow({
   offer: {
     id: string;
     partName: string;
+    partImageUrl: string | null;
     storeName: string;
     price: string;
     status: string;
@@ -40,7 +42,19 @@ export function OfferRow({
 
   return (
     <TableRow>
-      <TableCell>{offer.partName}</TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+            {offer.partImageUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={offer.partImageUrl} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <ImageOff className="size-3.5 text-muted-foreground" />
+            )}
+          </div>
+          <span>{offer.partName}</span>
+        </div>
+      </TableCell>
       <TableCell>{offer.storeName}</TableCell>
       <TableCell>{formatPrice(offer.price)}</TableCell>
       <TableCell>

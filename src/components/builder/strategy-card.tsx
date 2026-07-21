@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ExternalLink, ShieldCheck, Store as StoreIcon } from "lucide-react";
+import { ExternalLink, ImageOff, ShieldCheck, Store as StoreIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +25,7 @@ export function StrategyCard({
   title: string;
   description: string;
   strategy: BuildStrategy;
-  partLabels: Record<string, { name: string; category: string }>;
+  partLabels: Record<string, { name: string; category: string; imageUrl: string | null }>;
   highlight?: boolean;
 }) {
   const [open, setOpen] = useState(false);
@@ -69,11 +69,21 @@ export function StrategyCard({
                   key={item.offerId}
                   className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg border p-3"
                 >
-                  <div className="min-w-0 flex-1 basis-32 overflow-hidden">
-                    <p className="truncate text-sm font-medium">
-                      {part ? `${PART_CATEGORY_LABELS[part.category] ?? part.category} — ${part.name}` : item.partId}
-                    </p>
-                    <p className="truncate text-xs text-muted-foreground">{item.storeName}</p>
+                  <div className="flex min-w-0 flex-1 basis-32 items-center gap-2 overflow-hidden">
+                    <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                      {part?.imageUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={part.imageUrl} alt="" className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageOff className="size-3.5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">
+                        {part ? `${PART_CATEGORY_LABELS[part.category] ?? part.category} — ${part.name}` : item.partId}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">{item.storeName}</p>
+                    </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-3">
                     <span className="whitespace-nowrap font-medium">{formatPrice(item.price)}</span>

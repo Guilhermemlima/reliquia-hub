@@ -10,6 +10,7 @@ export const PART_CATEGORY_LABELS: Record<string, string> = {
   CASE: "Gabinete",
   COOLER: "Cooler",
   MONITOR: "Monitor",
+  PERIPHERAL: "Periférico",
 };
 
 export const PART_CATEGORY_ORDER = [

@@ -447,6 +447,7 @@ enum PartCategory {
   CASE
   COOLER
   MONITOR
+  PERIPHERAL
 }
 
 /// Catálogo canônico de peças de PC — o "produto interno" do sistema de

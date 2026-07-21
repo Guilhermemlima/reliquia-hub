@@ -10,16 +10,17 @@ Cabeçalho obrigatório (nessa ordem não importa, mas os nomes precisam bater
 exatamente):
 
 ```
-part_slug,part_title,ean,mpn,part_brand,part_model,store_slug,seller_name,price,pix_price,shipping_price,condition,availability,original_url,affiliate_url
+part_slug,part_title,part_category,ean,mpn,part_brand,part_model,store_slug,seller_name,price,pix_price,shipping_price,condition,availability,original_url,affiliate_url
 ```
 
 | Coluna | Obrigatória? | Descrição |
 | --- | --- | --- |
 | `part_slug` | Não* | Slug exato de uma peça já cadastrada (`Part.slug`). Se preenchido, todas as colunas de matching abaixo são ignoradas. |
-| `part_title` | Não* | Título do produto como aparece na loja — usado como rótulo da linha e para associação por nome aproximado. |
+| `part_title` | Não* | Título do produto. Se vazio e a peça for nova, o sistema tenta usar o título público da página (`og:title`) do `original_url`. |
+| `part_category` | Não** | `CPU`, `GPU`, `RAM`, `STORAGE`, `PSU`, `MOTHERBOARD`, `CASE`, `COOLER`, `MONITOR` ou `PERIPHERAL`. Só é usada (e só é obrigatória) quando a peça precisa ser **criada** — se já existir no catálogo, é ignorada. |
 | `ean` | Não* | Código de barras — maior prioridade de associação automática. |
 | `mpn` | Não* | Número de peça do fabricante — segunda prioridade. |
-| `part_brand` / `part_model` | Não* | Usados juntos para associação por marca+modelo (terceira prioridade). |
+| `part_brand` / `part_model` | Não* | Usados juntos para associação por marca+modelo (terceira prioridade) e como nome da peça nova, se `part_title` estiver vazio. |
 | `store_slug` | **Sim** | Slug de uma loja já cadastrada (`Store.slug`). |
 | `seller_name` | Não | Texto livre, exibido na oferta. |
 | `price` | **Sim** | Preço normal, número positivo (ex: `649.90`). |
@@ -32,6 +33,25 @@ part_slug,part_title,ean,mpn,part_brand,part_model,store_slug,seller_name,price,
 \* `part_slug` **ou** (`ean`/`mpn`/`part_brand`+`part_model`/`part_title`)
 precisa estar preenchido — sem nenhum sinal de identificação, a linha vira
 erro.
+\*\* obrigatória só no caso de a peça não existir ainda e não ter sido
+encontrada por nenhum método de associação.
+
+## Imagem e nome automáticos (prévia do link)
+
+Quando falta uma informação, `modules/affiliate/link-preview.ts` busca a
+prévia pública do `original_url` (as mesmas tags `og:title`/`og:image` que
+WhatsApp/Slack usam pra gerar preview de link — **não** é scraping de
+preço/estoque, só metadado que a própria página já expõe pra esse fim):
+
+- **Nome**: usado só como último recurso, se `part_title` **e**
+  `part_brand`+`part_model` estiverem vazios. O que você preenche
+  manualmente sempre tem prioridade.
+- **Imagem**: sempre que a peça (nova ou já existente) ainda não tiver
+  `imageUrl`, o sistema tenta preencher a partir da prévia do link.
+
+Isso é best-effort — algumas lojas bloqueiam esse tipo de requisição
+automatizada. Quando falha, a linha é processada normalmente, só sem
+imagem/título automáticos (você edita depois em `/admin/afiliados/ofertas`).
 
 ## Como a peça é resolvida
 
@@ -44,7 +64,11 @@ erro.
 3. **≥ 90% de confiança** → oferta criada direto, sem revisão.
 4. **Entre 50% e 90%** → vira uma entrada em `/admin/afiliados/revisao`
    (nenhuma oferta é criada até um admin aprovar).
-5. **< 50%** (nenhum candidato) → linha marcada como erro.
+5. **Nenhum candidato encontrado**: se `part_category` for válida e houver
+   `part_title` ou `part_brand`+`part_model`, uma **peça nova é criada**
+   no catálogo (com imagem/nome da prévia do link quando faltar) e a
+   oferta é criada direto — sem revisão, já que não havia ambiguidade pra
+   revisar. Sem `part_category` válida, a linha vira erro.
 
 ## Duplicidade
 

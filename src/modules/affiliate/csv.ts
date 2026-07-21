@@ -4,6 +4,10 @@ export const OFFER_CSV_HEADERS = [
   // usado como referência humana e para associação aproximada quando
   // part_slug estiver em branco
   "part_title",
+  // CPU, GPU, RAM, STORAGE, PSU, MOTHERBOARD, CASE, COOLER ou MONITOR —
+  // só é obrigatório quando a peça não existe ainda no catálogo (nesse
+  // caso o sistema cria a peça automaticamente com esses dados)
+  "part_category",
   "ean",
   "mpn",
   "part_brand",
@@ -109,6 +113,7 @@ export function offerCsvTemplate(): string {
     "",
     "",
     "",
+    "",
     "kabum",
     "KaBuM",
     "649.00",
@@ -124,6 +129,7 @@ export function offerCsvTemplate(): string {
     "Placa de vídeo RX 6600 8GB",
     "",
     "",
+    "",
     "AMD",
     "RX 6600",
     "pichau",
@@ -136,7 +142,28 @@ export function offerCsvTemplate(): string {
     "https://www.pichau.com.br/produto/exemplo",
     "",
   ];
-  return [OFFER_CSV_HEADERS.join(","), exactMatch.join(","), autoMatch.join(",")].join(
-    "\n"
-  );
+  const newPart = [
+    "",
+    "Teclado Mecânico Redragon Kumara",
+    "PERIPHERAL",
+    "",
+    "",
+    "Redragon",
+    "Kumara K552",
+    "terabyte-shop",
+    "Terabyte Shop",
+    "229.00",
+    "209.00",
+    "0",
+    "NEW",
+    "IN_STOCK",
+    "https://www.terabyteshop.com.br/produto/exemplo",
+    "",
+  ];
+  return [
+    OFFER_CSV_HEADERS.join(","),
+    exactMatch.join(","),
+    autoMatch.join(","),
+    newPart.join(","),
+  ].join("\n");
 }

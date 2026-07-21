@@ -10,12 +10,18 @@ import {
 } from "@/components/ui/select";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2 } from "lucide-react";
+import { ImageOff, Loader2 } from "lucide-react";
 import { StrategyCard } from "@/components/builder/strategy-card";
 import { computeBuild } from "@/modules/builder/actions";
 import type { BuildStrategiesResult } from "@/modules/builder/queries";
 
-type PartOption = { id: string; name: string; brand: string; model: string };
+type PartOption = {
+  id: string;
+  name: string;
+  brand: string;
+  model: string;
+  imageUrl: string | null;
+};
 type CategoryGroup = { category: string; label: string; parts: PartOption[] };
 
 export function BuilderClient({
@@ -37,11 +43,12 @@ export function BuilderClient({
   const [isPending, startTransition] = useTransition();
 
   const partIds = useMemo(() => Object.values(selection).filter(Boolean), [selection]);
+  const allParts = useMemo(() => categories.flatMap((g) => g.parts), [categories]);
   const partLabels = useMemo(() => {
-    const map: Record<string, { name: string; category: string }> = {};
+    const map: Record<string, { name: string; category: string; imageUrl: string | null }> = {};
     for (const group of categories) {
       for (const part of group.parts) {
-        map[part.id] = { name: part.name, category: group.category };
+        map[part.id] = { name: part.name, category: group.category, imageUrl: part.imageUrl };
       }
     }
     return map;
@@ -61,32 +68,49 @@ export function BuilderClient({
       <Card className="h-fit">
         <CardContent className="space-y-4 pt-6">
           <h2 className="font-heading text-lg font-semibold">Escolha as peças</h2>
-          {categories.map((group) => (
-            <Field key={group.category}>
-              <FieldLabel htmlFor={`part-${group.category}`}>{group.label}</FieldLabel>
-              <Select
-                value={selection[group.category] ?? ""}
-                onValueChange={(v) =>
-                  setSelection((prev) => ({ ...prev, [group.category]: v ?? "" }))
-                }
-              >
-                <SelectTrigger id={`part-${group.category}`} className="w-full">
-                  <SelectValue>
-                    {(value: string | null) =>
-                      group.parts.find((p) => p.id === value)?.name ?? "Selecione"
+          {categories.map((group) => {
+            const selectedPart = allParts.find((p) => p.id === selection[group.category]);
+            return (
+              <Field key={group.category}>
+                <FieldLabel htmlFor={`part-${group.category}`}>{group.label}</FieldLabel>
+                <div className="flex items-center gap-2">
+                  <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md border bg-muted">
+                    {selectedPart?.imageUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img
+                        src={selectedPart.imageUrl}
+                        alt=""
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <ImageOff className="size-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <Select
+                    value={selection[group.category] ?? ""}
+                    onValueChange={(v) =>
+                      setSelection((prev) => ({ ...prev, [group.category]: v ?? "" }))
                     }
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {group.parts.map((part) => (
-                    <SelectItem key={part.id} value={part.id}>
-                      {part.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          ))}
+                  >
+                    <SelectTrigger id={`part-${group.category}`} className="w-full">
+                      <SelectValue>
+                        {(value: string | null) =>
+                          group.parts.find((p) => p.id === value)?.name ?? "Selecione"
+                        }
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {group.parts.map((part) => (
+                        <SelectItem key={part.id} value={part.id}>
+                          {part.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </Field>
+            );
+          })}
         </CardContent>
       </Card>
 
