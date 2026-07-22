@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -43,27 +44,29 @@ export function UserMenu({
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
-        <DropdownMenuLabel className="truncate">
-          {name ?? email}
-        </DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem render={<Link href="/dashboard/listings" />}>
-          <LayoutDashboard /> Meus anúncios
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/dashboard/orders" />}>
-          <PackageSearch /> Minhas compras
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/dashboard/favorites" />}>
-          <Heart /> Favoritos
-        </DropdownMenuItem>
-        <DropdownMenuItem render={<Link href="/dashboard/messages" />}>
-          <MessageCircle /> Mensagens
-        </DropdownMenuItem>
-        {role === "ADMIN" && (
-          <DropdownMenuItem render={<Link href="/admin" />}>
-            <ShieldCheck /> Painel admin
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="truncate">
+            {name ?? email}
+          </DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem render={<Link href="/dashboard/listings" />}>
+            <LayoutDashboard /> Meus anúncios
           </DropdownMenuItem>
-        )}
+          <DropdownMenuItem render={<Link href="/dashboard/orders" />}>
+            <PackageSearch /> Minhas compras
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/dashboard/favorites" />}>
+            <Heart /> Favoritos
+          </DropdownMenuItem>
+          <DropdownMenuItem render={<Link href="/dashboard/messages" />}>
+            <MessageCircle /> Mensagens
+          </DropdownMenuItem>
+          {role === "ADMIN" && (
+            <DropdownMenuItem render={<Link href="/admin" />}>
+              <ShieldCheck /> Painel admin
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem
           variant="destructive"
