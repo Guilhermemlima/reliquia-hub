@@ -45,7 +45,7 @@ export async function computeStrategies(
   partIds: string[]
 ): Promise<BuildStrategiesResult> {
   const offers = await prisma.offer.findMany({
-    where: { partId: { in: partIds }, status: "ACTIVE" },
+    where: { partId: { in: partIds }, status: "ACTIVE", normalPrice: { not: null } },
     include: { store: true },
     orderBy: { normalPrice: "asc" },
   });

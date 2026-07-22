@@ -342,6 +342,7 @@ async function seedAffiliateAndPcBuilder() {
     { name: "KaBuM", domains: ["kabum.com.br", "www.kabum.com.br"], url: "https://www.kabum.com.br" },
     { name: "Pichau", domains: ["pichau.com.br", "www.pichau.com.br"], url: "https://www.pichau.com.br" },
     { name: "Terabyte Shop", domains: ["terabyteshop.com.br", "www.terabyteshop.com.br"], url: "https://www.terabyteshop.com.br" },
+    { name: "Amazon", domains: ["amazon.com.br", "www.amazon.com.br", "amzn.to", "a.co"], url: "https://www.amazon.com.br" },
   ];
 
   const stores = [];

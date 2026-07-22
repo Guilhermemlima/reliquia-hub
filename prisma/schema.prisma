@@ -485,7 +485,8 @@ model Offer {
   affiliateProgramId String?
 
   sellerName       String?
-  normalPrice      Decimal           @db.Decimal(10, 2)
+  /// nulo até a primeira atualização automática de preço encontrar um valor
+  normalPrice      Decimal?          @db.Decimal(10, 2)
   pixPrice         Decimal?          @db.Decimal(10, 2)
   installmentPrice Decimal?          @db.Decimal(10, 2)
   installmentCount Int?
@@ -493,6 +494,9 @@ model Offer {
   currency         String            @default("BRL")
   availability     OfferAvailability @default(UNKNOWN)
   condition        OfferCondition    @default(NEW)
+
+  /// resultado da última tentativa de "Atualizar preços" em lote
+  lastPriceCheckStatus String? @default("NEVER") // NEVER | OK | NOT_FOUND | ERROR
 
   originalUrl     String
   /// preenchida pelo AffiliateLinkService (hoje = originalUrl no modo manual

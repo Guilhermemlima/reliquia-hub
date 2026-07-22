@@ -55,7 +55,7 @@ export async function getBuilderParts() {
   const parts = await prisma.part.findMany({
     where: {
       category: { in: [...PART_CATEGORY_ORDER] },
-      offers: { some: { status: "ACTIVE" } },
+      offers: { some: { status: "ACTIVE", normalPrice: { not: null } } },
     },
     select: {
       id: true,

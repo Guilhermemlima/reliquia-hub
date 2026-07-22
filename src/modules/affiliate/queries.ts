@@ -34,7 +34,7 @@ export async function getAllPrograms() {
 
 export async function getOffersForPart(partId: string) {
   return prisma.offer.findMany({
-    where: { partId, status: "ACTIVE" },
+    where: { partId, status: "ACTIVE", normalPrice: { not: null } },
     orderBy: { normalPrice: "asc" },
     include: { store: true },
   });
@@ -54,6 +54,7 @@ export async function getAllOffers() {
     include: {
       store: true,
       part: true,
+      priceHistory: { select: { normalPrice: true }, orderBy: { capturedAt: "desc" }, take: 30 },
       _count: { select: { clicks: true } },
     },
   });

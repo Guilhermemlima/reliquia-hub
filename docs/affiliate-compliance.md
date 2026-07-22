@@ -41,8 +41,17 @@ linguagem simples:
 - **Prévia de link ≠ scraping**: `modules/affiliate/link-preview.ts` só lê
   as tags `og:title`/`og:image` que a própria página expõe publicamente
   para gerar preview (a mesma técnica de WhatsApp/Slack) — usado na
-  importação CSV pra sugerir nome/imagem de peça nova. Não extrai preço,
-  estoque, nem qualquer outro dado comercial da página.
+  importação CSV pra sugerir nome/imagem de peça nova.
+- **Atualização de preço é melhor esforço, não scraping estruturado**:
+  `modules/affiliate/price-fetch.ts` (usado pelo botão "Atualizar preços")
+  só lê dados de preço que a própria página expõe publicamente em formato
+  estruturado (JSON-LD schema.org/Product, meta tags de preço) — não
+  simula login, não navega por várias páginas, não contorna paywall/captcha
+  e falha silenciosamente quando a loja bloqueia. Lojas sem API oficial
+  (Amazon incluída, até termos acesso à PA-API) vão falhar com frequência —
+  isso é esperado. Um valor capturado muito fora do preço anterior é
+  descartado automaticamente (ver `price-refresh.ts`) em vez de sobrescrever
+  a oferta com um número possivelmente errado.
 - **Nenhum link de domínio não autorizado**: reforçado tanto no cadastro
   quanto no redirecionamento (`affiliate-security.md`).
 - **Comissão nunca é o único critério de ordenação**: as três estratégias

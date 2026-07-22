@@ -5,7 +5,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
 import { isUrlAllowedForStore } from "@/modules/affiliate/domain-validation";
-import { generateAffiliateLink } from "@/modules/affiliate/link-service";
+import { refreshAllOfferPrices } from "@/modules/affiliate/price-refresh";
 import {
   storeSchema,
   programSchema,
@@ -121,64 +121,39 @@ export async function createOffer(input: OfferInput) {
   const store = await prisma.store.findUnique({ where: { id: data.storeId } });
   if (!store) return { error: "Loja não encontrada." };
 
-  const originalCheck = isUrlAllowedForStore(data.originalUrl, store.allowedDomains);
-  if (!originalCheck.ok) return { error: originalCheck.error };
-
-  let affiliateUrl = data.affiliateUrl || "";
-  if (!affiliateUrl) {
-    const program = data.affiliateProgramId
-      ? await prisma.affiliateProgram.findUnique({ where: { id: data.affiliateProgramId } })
-      : null;
-    const result = await generateAffiliateLink({
-      providerType: program?.providerType ?? "MANUAL",
-      originalUrl: data.originalUrl,
-      allowedDomains: store.allowedDomains,
-      affiliateIdentifier: program?.affiliateIdentifier,
-    });
-    if (result.status !== "generated") {
-      return {
-        error:
-          "reason" in result
-            ? result.reason
-            : "Não foi possível gerar o link de afiliado.",
-      };
-    }
-    affiliateUrl = result.url;
-  } else {
-    const affiliateCheck = isUrlAllowedForStore(affiliateUrl, store.allowedDomains);
-    if (!affiliateCheck.ok) return { error: affiliateCheck.error };
-  }
+  const linkCheck = isUrlAllowedForStore(data.affiliateUrl, store.allowedDomains);
+  if (!linkCheck.ok) return { error: linkCheck.error };
 
   const offer = await prisma.offer.create({
     data: {
       partId: data.partId,
       storeId: data.storeId,
       affiliateProgramId: data.affiliateProgramId || undefined,
-      sellerName: data.sellerName,
-      normalPrice: data.normalPrice,
-      pixPrice: data.pixPrice,
-      installmentPrice: data.installmentPrice,
-      installmentCount: data.installmentCount,
-      shippingPrice: data.shippingPrice,
       availability: data.availability,
       condition: data.condition,
-      originalUrl: data.originalUrl,
-      affiliateUrl,
+      originalUrl: data.affiliateUrl,
+      affiliateUrl: data.affiliateUrl,
       source: "MANUAL",
-      priceHistory: {
-        create: {
-          normalPrice: data.normalPrice,
-          pixPrice: data.pixPrice,
-          shippingPrice: data.shippingPrice,
-          availability: data.availability,
-        },
-      },
+      lastPriceCheckStatus: "NEVER",
     },
   });
 
   revalidatePath("/admin/afiliados/ofertas");
+  revalidatePath("/admin/pecas");
   revalidatePath("/montador");
   return { success: true as const, offerId: offer.id };
+}
+
+export async function refreshAllOfferPricesAction() {
+  const admin = await requireAdmin();
+  if (!admin) return { error: "Acesso negado." };
+
+  const summary = await refreshAllOfferPrices();
+
+  revalidatePath("/admin/afiliados/ofertas");
+  revalidatePath("/admin/pecas");
+  revalidatePath("/montador");
+  return { success: true as const, summary };
 }
 
 export async function setOfferStatus(

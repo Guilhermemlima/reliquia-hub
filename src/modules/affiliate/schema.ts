@@ -39,15 +39,11 @@ export const offerSchema = z.object({
   partId: z.string().min(1),
   storeId: z.string().min(1),
   affiliateProgramId: z.string().optional(),
-  sellerName: z.string().max(120).optional(),
-  normalPrice: z.coerce.number().positive(),
-  pixPrice: z.coerce.number().positive().optional(),
-  installmentPrice: z.coerce.number().positive().optional(),
-  installmentCount: z.coerce.number().int().positive().optional(),
-  shippingPrice: z.coerce.number().nonnegative().optional(),
   availability: z.enum(offerAvailabilities).default("UNKNOWN"),
   condition: z.enum(offerConditions).default("NEW"),
-  originalUrl: z.string().url("URL original inválida"),
-  affiliateUrl: z.string().url("URL de afiliado inválida").optional().or(z.literal("")),
+  /// único link colado pelo admin — precisa já ser o link de afiliado
+  /// pronto (ex: gerado no SiteStripe da Amazon). Usado tanto como
+  /// `originalUrl` quanto `affiliateUrl` da oferta.
+  affiliateUrl: z.string().url("URL de afiliado inválida"),
 });
 export type OfferInput = z.infer<typeof offerSchema>;

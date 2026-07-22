@@ -33,15 +33,38 @@ testar).
 
 ## 3. Cadastrar uma oferta manualmente
 
-`/admin/afiliados/ofertas` → **Nova oferta manual**.
+`/admin/afiliados/ofertas` → **Nova oferta manual** (ou, pela tela de
+peças, `/admin/pecas` → **Associar link**).
 
-Escolha a peça do catálogo, a loja, preço (e opcionalmente Pix, frete,
-condição, estoque, vendedor) e cole a **URL original do produto**. Se você
-já tiver o link de afiliado pronto, cole em **URL de afiliado** — senão,
-deixe em branco que o sistema usa a própria URL original.
+Escolha a peça, a loja e cole **só o link de afiliado já pronto** (ex:
+gerado no SiteStripe da Amazon). Não tem campo de preço — isso é
+preenchido automaticamente pelo botão **Atualizar preços** (item 3.1).
 
 Se a URL não pertencer a um domínio autorizado da loja escolhida, o
 cadastro é recusado com uma mensagem explicando qual domínio faltou.
+A Amazon já vem cadastrada com `amazon.com.br` e `amzn.to` liberados.
+
+### 3.1. Atualizar preços em lote
+
+Botão **Atualizar preços** no topo de `/admin/afiliados/ofertas`. Roda pra
+todas as ofertas ativas de uma vez (é o que você clica diariamente):
+
+- Busca, na própria página do produto, dados de preço que a loja expõe
+  publicamente (schema.org/meta tags) — **melhor esforço, sem API
+  oficial**. Não é garantido: lojas com proteção anti-bot forte (a Amazon
+  em especial, sem acesso à PA-API ainda — ver `affiliate-providers.md`)
+  falham com frequência. Isso aparece como "Não encontrado", não como erro.
+- Guarda cada preço capturado em `OfferPriceHistory`, o que alimenta o
+  badge de desconto (maior preço já visto vs. preço atual) na listagem.
+- **Proteção contra valor errado**: se o número encontrado for muito
+  diferente do último preço conhecido (mais de 3x pra cima ou menos de 20%
+  do valor original), a oferta **não é atualizada** — fica marcada
+  "Preço suspeito" pra você conferir manualmente. Isso existe porque a
+  extração pode acidentalmente pegar um preço de outro elemento da página
+  (banner, produto errado) quando o link não aponta mais pra uma página de
+  produto válida.
+- Não há agendamento automático — o clique é manual, pensado pra virar
+  rotina diária sua.
 
 ## 4. Importar várias ofertas de uma vez (CSV)
 

@@ -42,11 +42,6 @@ type StoreOption = { id: string; name: string };
 
 type FormValues = {
   storeId: string;
-  sellerName: string;
-  normalPrice: string;
-  pixPrice: string;
-  shippingPrice: string;
-  originalUrl: string;
   affiliateUrl: string;
   condition: (typeof offerConditions)[number];
   availability: (typeof offerAvailabilities)[number];
@@ -75,11 +70,6 @@ export function PartOfferDialog({
   } = useForm<FormValues>({
     defaultValues: {
       storeId: "",
-      sellerName: "",
-      normalPrice: "",
-      pixPrice: "",
-      shippingPrice: "",
-      originalUrl: "",
       affiliateUrl: "",
       condition: "NEW",
       availability: "IN_STOCK",
@@ -95,12 +85,7 @@ export function PartOfferDialog({
     const result = await createOffer({
       partId,
       storeId: values.storeId,
-      sellerName: values.sellerName || undefined,
-      normalPrice: Number(values.normalPrice),
-      pixPrice: values.pixPrice ? Number(values.pixPrice) : undefined,
-      shippingPrice: values.shippingPrice ? Number(values.shippingPrice) : undefined,
-      originalUrl: values.originalUrl,
-      affiliateUrl: values.affiliateUrl || undefined,
+      affiliateUrl: values.affiliateUrl,
       condition: values.condition,
       availability: values.availability,
     });
@@ -110,7 +95,7 @@ export function PartOfferDialog({
       toast.error(result.error);
       return;
     }
-    toast.success("Link associado!");
+    toast.success("Link associado! O preço aparece após a próxima atualização em lote.");
     reset();
     setOpen(false);
   }
@@ -124,7 +109,9 @@ export function PartOfferDialog({
         <DialogHeader>
           <DialogTitle>Associar link — {partName}</DialogTitle>
           <DialogDescription>
-            A URL precisa ser de um domínio autorizado da loja escolhida.
+            Cole apenas o link de afiliado já pronto (ex: gerado no SiteStripe da
+            Amazon). O preço é detectado automaticamente pelo botão &quot;Atualizar
+            preços&quot; — não precisa digitar aqui.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -149,32 +136,14 @@ export function PartOfferDialog({
               </Select>
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field>
-                <FieldLabel htmlFor="partOfferPrice">Preço</FieldLabel>
-                <Input id="partOfferPrice" type="number" step="0.01" {...register("normalPrice", { required: true })} />
-                <FieldError errors={[errors.normalPrice]} />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="partOfferPixPrice">Preço no Pix</FieldLabel>
-                <Input id="partOfferPixPrice" type="number" step="0.01" {...register("pixPrice")} />
-              </Field>
-            </div>
-
             <Field>
-              <FieldLabel htmlFor="partOfferShipping">Frete (opcional, 0 = grátis)</FieldLabel>
-              <Input id="partOfferShipping" type="number" step="0.01" {...register("shippingPrice")} />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="partOfferUrl">URL original do produto</FieldLabel>
-              <Input id="partOfferUrl" placeholder="https://..." {...register("originalUrl", { required: true })} />
-              <FieldError errors={[errors.originalUrl]} />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="partOfferAffUrl">URL de afiliado (se já tiver)</FieldLabel>
-              <Input id="partOfferAffUrl" placeholder="https://... (opcional)" {...register("affiliateUrl")} />
+              <FieldLabel htmlFor="partOfferAffUrl">Link de afiliado</FieldLabel>
+              <Input
+                id="partOfferAffUrl"
+                placeholder="https://amzn.to/..."
+                {...register("affiliateUrl", { required: true })}
+              />
+              <FieldError errors={[errors.affiliateUrl]} />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
@@ -223,11 +192,6 @@ export function PartOfferDialog({
                 </Select>
               </Field>
             </div>
-
-            <Field>
-              <FieldLabel htmlFor="partOfferSeller">Vendedor (opcional)</FieldLabel>
-              <Input id="partOfferSeller" {...register("sellerName")} />
-            </Field>
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={loading}>

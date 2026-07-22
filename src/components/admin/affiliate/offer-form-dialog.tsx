@@ -45,11 +45,6 @@ type StoreOption = { id: string; name: string };
 type FormValues = {
   partId: string;
   storeId: string;
-  sellerName: string;
-  normalPrice: string;
-  pixPrice: string;
-  shippingPrice: string;
-  originalUrl: string;
   affiliateUrl: string;
   condition: (typeof offerConditions)[number];
   availability: (typeof offerAvailabilities)[number];
@@ -75,11 +70,6 @@ export function OfferFormDialog({
     defaultValues: {
       partId: "",
       storeId: "",
-      sellerName: "",
-      normalPrice: "",
-      pixPrice: "",
-      shippingPrice: "",
-      originalUrl: "",
       affiliateUrl: "",
       condition: "NEW",
       availability: "IN_STOCK",
@@ -95,12 +85,7 @@ export function OfferFormDialog({
     const result = await createOffer({
       partId: values.partId,
       storeId: values.storeId,
-      sellerName: values.sellerName || undefined,
-      normalPrice: Number(values.normalPrice),
-      pixPrice: values.pixPrice ? Number(values.pixPrice) : undefined,
-      shippingPrice: values.shippingPrice ? Number(values.shippingPrice) : undefined,
-      originalUrl: values.originalUrl,
-      affiliateUrl: values.affiliateUrl || undefined,
+      affiliateUrl: values.affiliateUrl,
       condition: values.condition,
       availability: values.availability,
     });
@@ -110,7 +95,7 @@ export function OfferFormDialog({
       toast.error(result.error);
       return;
     }
-    toast.success("Oferta cadastrada!");
+    toast.success("Oferta cadastrada! O preço aparece após a próxima atualização em lote.");
     reset();
     setOpen(false);
   }
@@ -124,7 +109,8 @@ export function OfferFormDialog({
         <DialogHeader>
           <DialogTitle>Nova oferta manual</DialogTitle>
           <DialogDescription>
-            A URL precisa ser de um domínio autorizado da loja escolhida.
+            Cole apenas o link de afiliado já pronto. O preço é detectado
+            automaticamente pelo botão &quot;Atualizar preços&quot;.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -169,32 +155,14 @@ export function OfferFormDialog({
               </Select>
             </Field>
 
-            <div className="grid grid-cols-2 gap-3">
-              <Field>
-                <FieldLabel htmlFor="normalPrice">Preço</FieldLabel>
-                <Input id="normalPrice" type="number" step="0.01" {...register("normalPrice", { required: true })} />
-                <FieldError errors={[errors.normalPrice]} />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="pixPrice">Preço no Pix</FieldLabel>
-                <Input id="pixPrice" type="number" step="0.01" {...register("pixPrice")} />
-              </Field>
-            </div>
-
             <Field>
-              <FieldLabel htmlFor="shippingPrice">Frete (opcional, 0 = grátis)</FieldLabel>
-              <Input id="shippingPrice" type="number" step="0.01" {...register("shippingPrice")} />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="originalUrl">URL original do produto</FieldLabel>
-              <Input id="originalUrl" placeholder="https://..." {...register("originalUrl", { required: true })} />
-              <FieldError errors={[errors.originalUrl]} />
-            </Field>
-
-            <Field>
-              <FieldLabel htmlFor="affiliateUrl">URL de afiliado (se já tiver)</FieldLabel>
-              <Input id="affiliateUrl" placeholder="https://... (opcional)" {...register("affiliateUrl")} />
+              <FieldLabel htmlFor="offerAffUrl">Link de afiliado</FieldLabel>
+              <Input
+                id="offerAffUrl"
+                placeholder="https://amzn.to/..."
+                {...register("affiliateUrl", { required: true })}
+              />
+              <FieldError errors={[errors.affiliateUrl]} />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">
@@ -243,11 +211,6 @@ export function OfferFormDialog({
                 </Select>
               </Field>
             </div>
-
-            <Field>
-              <FieldLabel htmlFor="sellerName">Vendedor (opcional)</FieldLabel>
-              <Input id="sellerName" {...register("sellerName")} />
-            </Field>
           </FieldGroup>
           <DialogFooter className="mt-4">
             <Button type="submit" disabled={loading}>

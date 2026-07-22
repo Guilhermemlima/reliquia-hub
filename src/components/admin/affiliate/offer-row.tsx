@@ -16,6 +16,14 @@ const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive"> = 
   PENDING_REVIEW: "secondary",
 };
 
+const CHECK_STATUS_LABELS: Record<string, string> = {
+  NEVER: "Nunca verificado",
+  OK: "Preço em dia",
+  NOT_FOUND: "Não encontrado",
+  SUSPICIOUS: "Preço suspeito — confira manualmente",
+  ERROR: "Erro na última busca",
+};
+
 export function OfferRow({
   offer,
 }: {
@@ -24,7 +32,10 @@ export function OfferRow({
     partName: string;
     partImageUrl: string | null;
     storeName: string;
-    price: string;
+    price: string | null;
+    highestPrice: string | null;
+    discountPercent: number | null;
+    priceCheckStatus: string | null;
     status: string;
     updatedAt: string;
     clicks: number;
@@ -56,7 +67,34 @@ export function OfferRow({
         </div>
       </TableCell>
       <TableCell>{offer.storeName}</TableCell>
-      <TableCell>{formatPrice(offer.price)}</TableCell>
+      <TableCell>
+        {offer.price ? (
+          <div className="flex flex-col gap-0.5">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{formatPrice(offer.price)}</span>
+              {offer.discountPercent ? (
+                <Badge variant="default" className="bg-success text-success-foreground">
+                  -{offer.discountPercent}%
+                </Badge>
+              ) : null}
+            </div>
+            {offer.highestPrice && offer.discountPercent ? (
+              <span className="text-xs text-muted-foreground line-through">
+                {formatPrice(offer.highestPrice)}
+              </span>
+            ) : null}
+            {offer.priceCheckStatus === "SUSPICIOUS" ? (
+              <span className="text-xs text-destructive">
+                {CHECK_STATUS_LABELS.SUSPICIOUS}
+              </span>
+            ) : null}
+          </div>
+        ) : (
+          <span className="text-xs text-muted-foreground">
+            {CHECK_STATUS_LABELS[offer.priceCheckStatus ?? "NEVER"]}
+          </span>
+        )}
+      </TableCell>
       <TableCell>
         <Badge variant={STATUS_VARIANT[offer.status] ?? "secondary"}>{offer.status}</Badge>
       </TableCell>

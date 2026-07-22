@@ -14,6 +14,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { OfferFormDialog } from "@/components/admin/affiliate/offer-form-dialog";
 import { OfferRow } from "@/components/admin/affiliate/offer-row";
+import { RefreshPricesButton } from "@/components/admin/affiliate/refresh-prices-button";
+import { computeOfferPriceStats } from "@/modules/affiliate/price-refresh";
 
 export const metadata: Metadata = { title: "Ofertas · Afiliados · Admin" };
 
@@ -29,6 +31,7 @@ export default async function AdminOffersPage() {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-heading text-2xl font-semibold">Ofertas de afiliados</h1>
         <div className="flex gap-2">
+          <RefreshPricesButton />
           <Button variant="outline" render={<Link href="/admin/afiliados/importar" />}>
             <Upload /> Importar CSV
           </Button>
@@ -63,21 +66,30 @@ export default async function AdminOffersPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {offers.map((offer) => (
-                <OfferRow
-                  key={offer.id}
-                  offer={{
-                    id: offer.id,
-                    partName: `${PART_CATEGORY_LABELS[offer.part.category] ?? offer.part.category} — ${offer.part.name}`,
-                    partImageUrl: offer.part.imageUrl,
-                    storeName: offer.store.name,
-                    price: offer.normalPrice.toString(),
-                    status: offer.status,
-                    updatedAt: offer.updatedAt.toISOString(),
-                    clicks: offer._count.clicks,
-                  }}
-                />
-              ))}
+              {offers.map((offer) => {
+                const stats = computeOfferPriceStats(
+                  offer.normalPrice ? Number(offer.normalPrice) : null,
+                  offer.priceHistory.map((h) => ({ normalPrice: Number(h.normalPrice) }))
+                );
+                return (
+                  <OfferRow
+                    key={offer.id}
+                    offer={{
+                      id: offer.id,
+                      partName: `${PART_CATEGORY_LABELS[offer.part.category] ?? offer.part.category} — ${offer.part.name}`,
+                      partImageUrl: offer.part.imageUrl,
+                      storeName: offer.store.name,
+                      price: stats.current !== null ? String(stats.current) : null,
+                      highestPrice: stats.highest !== null ? String(stats.highest) : null,
+                      discountPercent: stats.discountPercent,
+                      priceCheckStatus: offer.lastPriceCheckStatus,
+                      status: offer.status,
+                      updatedAt: offer.updatedAt.toISOString(),
+                      clicks: offer._count.clicks,
+                    }}
+                  />
+                );
+              })}
             </TableBody>
           </Table>
         </div>
