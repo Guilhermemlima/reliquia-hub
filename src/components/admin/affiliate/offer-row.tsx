@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { setOfferStatus } from "@/modules/affiliate/actions";
 import { formatPrice, formatDate } from "@/lib/format";
+import { SetPriceDialog } from "@/components/admin/affiliate/set-price-dialog";
 
 const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive"> = {
   ACTIVE: "default",
@@ -101,15 +102,18 @@ export function OfferRow({
       <TableCell>{formatDate(offer.updatedAt)}</TableCell>
       <TableCell>{offer.clicks}</TableCell>
       <TableCell className="text-right">
-        {offer.status === "ACTIVE" ? (
-          <Button size="sm" variant="outline" disabled={isPending} onClick={() => update("INACTIVE")}>
-            Desativar
-          </Button>
-        ) : (
-          <Button size="sm" variant="outline" disabled={isPending} onClick={() => update("ACTIVE")}>
-            Ativar
-          </Button>
-        )}
+        <div className="flex justify-end gap-2">
+          {!offer.price && <SetPriceDialog offerId={offer.id} partName={offer.partName} />}
+          {offer.status === "ACTIVE" ? (
+            <Button size="sm" variant="outline" disabled={isPending} onClick={() => update("INACTIVE")}>
+              Desativar
+            </Button>
+          ) : (
+            <Button size="sm" variant="outline" disabled={isPending} onClick={() => update("ACTIVE")}>
+              Ativar
+            </Button>
+          )}
+        </div>
       </TableCell>
     </TableRow>
   );

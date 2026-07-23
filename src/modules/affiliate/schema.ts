@@ -45,5 +45,15 @@ export const offerSchema = z.object({
   /// pronto (ex: gerado no SiteStripe da Amazon). Usado tanto como
   /// `originalUrl` quanto `affiliateUrl` da oferta.
   affiliateUrl: z.string().url("URL de afiliado inválida"),
+  /// opcional — preenche na hora sem depender da busca automática (que a
+  /// Amazon bloqueia sem a PA-API oficial). Se vazio, fica pendente até
+  /// "Atualizar preços" achar um valor ou o admin preencher depois.
+  normalPrice: z.coerce.number().positive().optional(),
 });
 export type OfferInput = z.infer<typeof offerSchema>;
+
+export const setOfferPriceSchema = z.object({
+  offerId: z.string().min(1),
+  normalPrice: z.coerce.number().positive(),
+});
+export type SetOfferPriceInput = z.infer<typeof setOfferPriceSchema>;

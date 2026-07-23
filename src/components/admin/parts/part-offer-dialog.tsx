@@ -43,6 +43,7 @@ type StoreOption = { id: string; name: string };
 type FormValues = {
   storeId: string;
   affiliateUrl: string;
+  normalPrice: string;
   condition: (typeof offerConditions)[number];
   availability: (typeof offerAvailabilities)[number];
 };
@@ -71,6 +72,7 @@ export function PartOfferDialog({
     defaultValues: {
       storeId: "",
       affiliateUrl: "",
+      normalPrice: "",
       condition: "NEW",
       availability: "IN_STOCK",
     },
@@ -86,6 +88,7 @@ export function PartOfferDialog({
       partId,
       storeId: values.storeId,
       affiliateUrl: values.affiliateUrl,
+      normalPrice: values.normalPrice ? Number(values.normalPrice) : undefined,
       condition: values.condition,
       availability: values.availability,
     });
@@ -95,7 +98,11 @@ export function PartOfferDialog({
       toast.error(result.error);
       return;
     }
-    toast.success("Link associado! O preço aparece após a próxima atualização em lote.");
+    toast.success(
+      values.normalPrice
+        ? "Link associado com preço — já aparece no montador."
+        : "Link associado! Preencha o preço depois ou espere a atualização automática (nem sempre funciona pra Amazon)."
+    );
     reset();
     setOpen(false);
   }
@@ -109,9 +116,9 @@ export function PartOfferDialog({
         <DialogHeader>
           <DialogTitle>Associar link — {partName}</DialogTitle>
           <DialogDescription>
-            Cole apenas o link de afiliado já pronto (ex: gerado no SiteStripe da
-            Amazon). O preço é detectado automaticamente pelo botão &quot;Atualizar
-            preços&quot; — não precisa digitar aqui.
+            Cole o link de afiliado já pronto. O preço é opcional — o botão
+            &quot;Atualizar preços&quot; tenta buscar sozinho, mas a Amazon bloqueia
+            essa busca automática, então pra links da Amazon vale preencher aqui.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -144,6 +151,17 @@ export function PartOfferDialog({
                 {...register("affiliateUrl", { required: true })}
               />
               <FieldError errors={[errors.affiliateUrl]} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="partOfferPrice">Preço (opcional)</FieldLabel>
+              <Input
+                id="partOfferPrice"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 249.90"
+                {...register("normalPrice")}
+              />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">

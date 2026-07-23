@@ -46,6 +46,7 @@ type FormValues = {
   partId: string;
   storeId: string;
   affiliateUrl: string;
+  normalPrice: string;
   condition: (typeof offerConditions)[number];
   availability: (typeof offerAvailabilities)[number];
 };
@@ -71,6 +72,7 @@ export function OfferFormDialog({
       partId: "",
       storeId: "",
       affiliateUrl: "",
+      normalPrice: "",
       condition: "NEW",
       availability: "IN_STOCK",
     },
@@ -86,6 +88,7 @@ export function OfferFormDialog({
       partId: values.partId,
       storeId: values.storeId,
       affiliateUrl: values.affiliateUrl,
+      normalPrice: values.normalPrice ? Number(values.normalPrice) : undefined,
       condition: values.condition,
       availability: values.availability,
     });
@@ -95,7 +98,11 @@ export function OfferFormDialog({
       toast.error(result.error);
       return;
     }
-    toast.success("Oferta cadastrada! O preço aparece após a próxima atualização em lote.");
+    toast.success(
+      values.normalPrice
+        ? "Oferta cadastrada com preço — já aparece no montador."
+        : "Oferta cadastrada! Preencha o preço depois ou espere a atualização automática (nem sempre funciona pra Amazon)."
+    );
     reset();
     setOpen(false);
   }
@@ -109,8 +116,9 @@ export function OfferFormDialog({
         <DialogHeader>
           <DialogTitle>Nova oferta manual</DialogTitle>
           <DialogDescription>
-            Cole apenas o link de afiliado já pronto. O preço é detectado
-            automaticamente pelo botão &quot;Atualizar preços&quot;.
+            Cole o link de afiliado já pronto. O preço é opcional — o botão
+            &quot;Atualizar preços&quot; tenta buscar sozinho, mas a Amazon bloqueia
+            essa busca automática, então pra links da Amazon vale preencher aqui.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
@@ -163,6 +171,17 @@ export function OfferFormDialog({
                 {...register("affiliateUrl", { required: true })}
               />
               <FieldError errors={[errors.affiliateUrl]} />
+            </Field>
+
+            <Field>
+              <FieldLabel htmlFor="offerNormalPrice">Preço (opcional)</FieldLabel>
+              <Input
+                id="offerNormalPrice"
+                type="number"
+                step="0.01"
+                placeholder="Ex: 249.90"
+                {...register("normalPrice")}
+              />
             </Field>
 
             <div className="grid grid-cols-2 gap-3">

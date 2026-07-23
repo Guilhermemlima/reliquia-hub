@@ -10,9 +10,11 @@ import {
   storeSchema,
   programSchema,
   offerSchema,
+  setOfferPriceSchema,
   type StoreInput,
   type ProgramInput,
   type OfferInput,
+  type SetOfferPriceInput,
 } from "@/modules/affiliate/schema";
 
 async function requireAdmin() {
@@ -134,7 +136,15 @@ export async function createOffer(input: OfferInput) {
       originalUrl: data.affiliateUrl,
       affiliateUrl: data.affiliateUrl,
       source: "MANUAL",
-      lastPriceCheckStatus: "NEVER",
+      normalPrice: data.normalPrice,
+      lastPriceCheckStatus: data.normalPrice ? "OK" : "NEVER",
+      ...(data.normalPrice
+        ? {
+            priceHistory: {
+              create: { normalPrice: data.normalPrice, availability: data.availability },
+            },
+          }
+        : {}),
     },
   });
 
@@ -142,6 +152,35 @@ export async function createOffer(input: OfferInput) {
   revalidatePath("/admin/pecas");
   revalidatePath("/montador");
   return { success: true as const, offerId: offer.id };
+}
+
+export async function setOfferPrice(input: SetOfferPriceInput) {
+  const admin = await requireAdmin();
+  if (!admin) return { error: "Acesso negado." };
+
+  const parsed = setOfferPriceSchema.safeParse(input);
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Preço inválido." };
+  }
+  const data = parsed.data;
+
+  const offer = await prisma.offer.findUnique({ where: { id: data.offerId } });
+  if (!offer) return { error: "Oferta não encontrada." };
+
+  await prisma.$transaction([
+    prisma.offer.update({
+      where: { id: data.offerId },
+      data: { normalPrice: data.normalPrice, lastPriceCheckStatus: "OK", lastCheckedAt: new Date() },
+    }),
+    prisma.offerPriceHistory.create({
+      data: { offerId: data.offerId, normalPrice: data.normalPrice, availability: offer.availability },
+    }),
+  ]);
+
+  revalidatePath("/admin/afiliados/ofertas");
+  revalidatePath("/admin/pecas");
+  revalidatePath("/montador");
+  return { success: true as const };
 }
 
 export async function refreshAllOfferPricesAction() {
