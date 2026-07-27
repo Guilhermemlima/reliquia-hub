@@ -21,15 +21,28 @@ export function ImageUploader({
   max?: number;
 }) {
   const [urlDraft, setUrlDraft] = useState("");
+  const [urlError, setUrlError] = useState<string | null>(null);
 
   function remove(index: number) {
     onChange(value.filter((_, i) => i !== index));
   }
 
   function addUrl() {
-    if (!urlDraft.trim()) return;
+    const url = urlDraft.trim();
+    if (!url) return;
     if (value.length >= max) return;
-    onChange([...value, { url: urlDraft.trim() }]);
+    if (!url.startsWith("https://")) {
+      setUrlError("A URL precisa começar com https://");
+      return;
+    }
+    try {
+      new URL(url);
+    } catch {
+      setUrlError("URL inválida.");
+      return;
+    }
+    setUrlError(null);
+    onChange([...value, { url }]);
     setUrlDraft("");
   }
 
@@ -69,7 +82,16 @@ export function ImageUploader({
       {CLOUD_ENABLED ? (
         <CldUploadWidget
           uploadPreset={UPLOAD_PRESET}
-          options={{ multiple: true, maxFiles: Math.max(max - value.length, 1), sources: ["local", "camera", "url"] }}
+          options={{
+            multiple: true,
+            maxFiles: Math.max(max - value.length, 1),
+            // "url" foi removido de propósito: permitiria que qualquer
+            // visitante usasse nossa conta Cloudinary pra buscar/hospedar
+            // uma imagem de qualquer link externo (abuso de SSRF/hotlink).
+            sources: ["local", "camera"],
+            clientAllowedFormats: ["png", "jpg", "jpeg", "webp"],
+            maxFileSize: 8_000_000,
+          }}
           onSuccess={(result: CloudinaryUploadWidgetResults) => {
             if (typeof result.info === "string" || !result.info) return;
             const info = result.info;
@@ -95,12 +117,16 @@ export function ImageUploader({
             <Input
               placeholder="https://exemplo.com/foto.jpg"
               value={urlDraft}
-              onChange={(e) => setUrlDraft(e.target.value)}
+              onChange={(e) => {
+                setUrlDraft(e.target.value);
+                setUrlError(null);
+              }}
             />
             <Button type="button" variant="outline" onClick={addUrl}>
               Adicionar
             </Button>
           </div>
+          {urlError && <p className="mt-1 text-xs text-destructive">{urlError}</p>}
         </div>
       )}
     </div>

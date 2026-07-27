@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { authConfig } from "@/lib/auth.config";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const credentialsSchema = z.object({
   email: z.string().email(),
@@ -28,6 +29,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!parsed.success) return null;
 
         const { email, password } = parsed.data;
+
+        // Trava por e-mail (não por IP) — impede força bruta numa conta
+        // específica mesmo que o atacante troque de endereço/proxy.
+        const { allowed } = await checkRateLimit(`login:${email.toLowerCase()}`, 8, 15 * 60);
+        if (!allowed) return null;
+
         const user = await prisma.user.findUnique({ where: { email } });
         if (!user?.password) return null;
 

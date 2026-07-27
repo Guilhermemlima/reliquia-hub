@@ -10,7 +10,10 @@ export const listingConditions = [
 ] as const;
 
 export const listingImageSchema = z.object({
-  url: z.string().url(),
+  url: z
+    .string()
+    .url()
+    .refine((url) => url.startsWith("https://"), "A URL da imagem precisa ser https://"),
   publicId: z.string().optional(),
 });
 

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { checkRateLimit } from "@/lib/rate-limit";
 import {
   getConversationForUser,
   getMessages,
@@ -44,6 +45,11 @@ export async function POST(
   );
   if (!conversation) {
     return NextResponse.json({ error: "not_found" }, { status: 404 });
+  }
+
+  const { allowed } = await checkRateLimit(`chat-msg:${session.user.id}`, 30, 60);
+  if (!allowed) {
+    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
   }
 
   const body = await req.json().catch(() => null);

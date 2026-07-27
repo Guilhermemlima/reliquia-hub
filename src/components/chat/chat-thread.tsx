@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { Send } from "lucide-react";
+import { toast } from "sonner";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -68,6 +69,8 @@ export function ChatThread({
       if (res.ok) {
         const data = await res.json();
         setMessages((prev) => [...prev, data.message]);
+      } else if (res.status === 429) {
+        toast.error("Você está enviando mensagens rápido demais — espere um pouco.");
       }
     } finally {
       setSending(false);
