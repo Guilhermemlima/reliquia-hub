@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { paymentProvider } from "@/modules/payments/provider";
+import { PLATFORM_COMMISSION_PERCENT } from "@/modules/payments/connect";
 
 async function requireUser() {
   const session = await auth();
@@ -36,6 +37,18 @@ export async function startCheckout(
     return { error: "Você não pode comprar seu próprio anúncio." };
   }
 
+  if (paymentProvider.enabled) {
+    const sellerProfile = await prisma.sellerProfile.findUnique({
+      where: { userId: listing.sellerId },
+    });
+    if (!sellerProfile?.stripeAccountId || !sellerProfile.stripeChargesEnabled) {
+      return {
+        error:
+          "O vendedor ainda não concluiu a configuração de recebimento de pagamentos — tente novamente mais tarde.",
+      };
+    }
+  }
+
   const order = await prisma.order.create({
     data: {
       buyerId: user.id,
@@ -61,6 +74,14 @@ export async function startCheckout(
     return { devMode: true as const, orderId: order.id };
   }
 
+  const sellerProfile = await prisma.sellerProfile.findUnique({
+    where: { userId: listing.sellerId },
+  });
+  const amountCents = Math.round(Number(listing.price) * 100);
+  const applicationFeeAmountCents = Math.round(
+    (amountCents * PLATFORM_COMMISSION_PERCENT) / 100
+  );
+
   const result = await paymentProvider.createCheckoutSession({
     orderId: order.id,
     amount: Number(listing.price),
@@ -70,6 +91,8 @@ export async function startCheckout(
     buyerEmail: user.email,
     successUrl: `${APP_URL}/checkout/success?orderId=${order.id}`,
     cancelUrl: `${APP_URL}/listings/${listing.slug}`,
+    sellerStripeAccountId: sellerProfile!.stripeAccountId!,
+    applicationFeeAmountCents,
   });
 
   if ("error" in result) {

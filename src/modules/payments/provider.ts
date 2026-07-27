@@ -9,6 +9,11 @@ export type CheckoutSessionParams = {
   buyerEmail?: string | null;
   successUrl: string;
   cancelUrl: string;
+  /// conta Stripe Connect do vendedor — o valor (menos a comissão) vai
+  /// direto pra ela via destination charge.
+  sellerStripeAccountId: string;
+  /// comissão da plataforma, em centavos.
+  applicationFeeAmountCents: number;
 };
 
 export type CheckoutSessionResult =
@@ -57,6 +62,10 @@ export const stripeProvider: PaymentProvider = {
           },
         ],
         metadata: { orderId: params.orderId },
+        payment_intent_data: {
+          application_fee_amount: params.applicationFeeAmountCents,
+          transfer_data: { destination: params.sellerStripeAccountId },
+        },
         success_url: params.successUrl,
         cancel_url: params.cancelUrl,
       });

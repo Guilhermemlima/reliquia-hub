@@ -43,5 +43,18 @@ export async function POST(req: Request) {
     }
   }
 
+  // Mantém o status de recebimento do vendedor em dia sem depender do
+  // retorno manual à tela de pagamentos (ex: se ele fechar a aba do Stripe).
+  if (event.type === "account.updated") {
+    const account = event.data.object as Stripe.Account;
+    await prisma.sellerProfile.updateMany({
+      where: { stripeAccountId: account.id },
+      data: {
+        stripeChargesEnabled: Boolean(account.charges_enabled),
+        stripeDetailsSubmitted: Boolean(account.details_submitted),
+      },
+    });
+  }
+
   return NextResponse.json({ received: true });
 }

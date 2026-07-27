@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 
+export async function getSellerProfileByUserId(userId: string) {
+  return prisma.sellerProfile.findUnique({ where: { userId } });
+}
+
 export async function getSellerBySlug(slug: string) {
   return prisma.sellerProfile.findUnique({
     where: { slug },

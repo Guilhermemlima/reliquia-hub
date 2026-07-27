@@ -106,6 +106,12 @@ model SellerProfile {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
+  /// Stripe Connect (Express) — permite o pagamento ir direto pro vendedor,
+  /// com a comissão da plataforma descontada automaticamente no checkout.
+  stripeAccountId       String?
+  stripeChargesEnabled  Boolean   @default(false)
+  stripeDetailsSubmitted Boolean  @default(false)
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

@@ -8,12 +8,14 @@ import {
   MessageCircle,
   PackageSearch,
   Store,
+  Wallet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const items = [
   { href: "/dashboard/listings", label: "Meus anúncios", icon: Store },
   { href: "/dashboard/orders", label: "Compras e vendas", icon: PackageSearch },
+  { href: "/dashboard/pagamentos", label: "Pagamentos", icon: Wallet },
   { href: "/dashboard/favorites", label: "Favoritos", icon: Heart },
   { href: "/dashboard/messages", label: "Mensagens", icon: MessageCircle },
 ];
