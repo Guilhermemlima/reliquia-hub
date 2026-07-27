@@ -79,7 +79,7 @@ export async function getClickReport() {
 export async function getOfferHealthReport() {
   const staleThreshold = new Date(Date.now() - STALE_OFFER_DAYS * 24 * 60 * 60 * 1000);
 
-  const [statusCounts, staleOffers, allParts, partsWithActiveOffer] = await Promise.all([
+  const [statusCounts, staleOffers, partsWithoutOffer] = await Promise.all([
     prisma.offer.groupBy({ by: ["status"], _count: { _all: true } }),
     prisma.offer.findMany({
       where: { status: "ACTIVE", lastCheckedAt: { lt: staleThreshold } },
@@ -87,16 +87,12 @@ export async function getOfferHealthReport() {
       orderBy: { lastCheckedAt: "asc" },
       take: 20,
     }),
-    prisma.part.findMany({ select: { id: true, name: true, category: true } }),
-    prisma.offer.findMany({
-      where: { status: "ACTIVE" },
-      select: { partId: true },
-      distinct: ["partId"],
+    prisma.part.findMany({
+      where: { offers: { none: { status: "ACTIVE" } } },
+      select: { id: true, name: true, category: true },
+      take: 200,
     }),
   ]);
-
-  const partsWithOfferIds = new Set(partsWithActiveOffer.map((o) => o.partId));
-  const partsWithoutOffer = allParts.filter((p) => !partsWithOfferIds.has(p.id));
 
   return {
     statusCounts: statusCounts.map((s) => ({ status: s.status, count: s._count._all })),

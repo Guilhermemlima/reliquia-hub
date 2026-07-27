@@ -27,6 +27,7 @@ export async function getAllListingsForModeration() {
 export async function getAllReports() {
   return prisma.report.findMany({
     orderBy: { createdAt: "desc" },
+    take: 100,
     include: {
       reporter: { select: { name: true, email: true } },
       listing: { select: { title: true, slug: true } },

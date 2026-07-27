@@ -25,7 +25,7 @@ import {
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 import { createPart } from "@/modules/parts/actions";
 import { partCategories } from "@/modules/parts/schema";
-import { PART_CATEGORY_LABELS } from "@/modules/parts/queries";
+import { PART_CATEGORY_LABELS } from "@/modules/parts/constants";
 
 type FormValues = {
   category: (typeof partCategories)[number];

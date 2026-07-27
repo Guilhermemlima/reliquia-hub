@@ -6,7 +6,7 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { approveMatchReview, rejectMatchReview } from "@/modules/affiliate/review-actions";
-import { PART_CATEGORY_LABELS } from "@/modules/parts/queries";
+import { PART_CATEGORY_LABELS } from "@/modules/parts/constants";
 
 const METHOD_LABELS: Record<string, string> = {
   ean: "EAN",

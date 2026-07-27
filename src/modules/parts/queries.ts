@@ -1,29 +1,8 @@
 import { prisma } from "@/lib/prisma";
+import { cached, invalidateCache } from "@/lib/redis";
+import { PART_CATEGORY_LABELS, PART_CATEGORY_ORDER } from "@/modules/parts/constants";
 
-export const PART_CATEGORY_LABELS: Record<string, string> = {
-  CPU: "Processador",
-  GPU: "Placa de vídeo",
-  RAM: "Memória RAM",
-  STORAGE: "Armazenamento",
-  PSU: "Fonte",
-  MOTHERBOARD: "Placa-mãe",
-  CASE: "Gabinete",
-  COOLER: "Cooler",
-  MONITOR: "Monitor",
-  PERIPHERAL: "Periférico",
-};
-
-export const PART_CATEGORY_ORDER = [
-  "CPU",
-  "GPU",
-  "MOTHERBOARD",
-  "RAM",
-  "STORAGE",
-  "PSU",
-  "CASE",
-  "COOLER",
-  "MONITOR",
-] as const;
+export { PART_CATEGORY_LABELS, PART_CATEGORY_ORDER };
 
 export async function getAllParts() {
   return prisma.part.findMany({ orderBy: [{ category: "asc" }, { name: "asc" }] });
@@ -52,33 +31,40 @@ export async function getPartsByCategory() {
  * essa página depois da importação em massa do catálogo (~2.400 peças).
  */
 export async function getBuilderParts() {
-  const parts = await prisma.part.findMany({
-    where: {
-      category: { in: [...PART_CATEGORY_ORDER] },
-      offers: { some: { status: "ACTIVE", normalPrice: { not: null } } },
-    },
-    select: {
-      id: true,
-      category: true,
-      brand: true,
-      model: true,
-      name: true,
-      imageUrl: true,
-    },
-    orderBy: [{ category: "asc" }, { name: "asc" }],
-  });
+  return cached("builder:parts", 60, async () => {
+    const parts = await prisma.part.findMany({
+      where: {
+        category: { in: [...PART_CATEGORY_ORDER] },
+        offers: { some: { status: "ACTIVE", normalPrice: { not: null } } },
+      },
+      select: {
+        id: true,
+        category: true,
+        brand: true,
+        model: true,
+        name: true,
+        imageUrl: true,
+      },
+      orderBy: [{ category: "asc" }, { name: "asc" }],
+    });
 
-  const grouped = new Map<string, typeof parts>();
-  for (const part of parts) {
-    const list = grouped.get(part.category) ?? [];
-    list.push(part);
-    grouped.set(part.category, list);
-  }
-  return PART_CATEGORY_ORDER.filter((c) => grouped.has(c)).map((category) => ({
-    category,
-    label: PART_CATEGORY_LABELS[category],
-    parts: grouped.get(category) ?? [],
-  }));
+    const grouped = new Map<string, typeof parts>();
+    for (const part of parts) {
+      const list = grouped.get(part.category) ?? [];
+      list.push(part);
+      grouped.set(part.category, list);
+    }
+    return PART_CATEGORY_ORDER.filter((c) => grouped.has(c)).map((category) => ({
+      category,
+      label: PART_CATEGORY_LABELS[category],
+      parts: grouped.get(category) ?? [],
+    }));
+  });
+}
+
+/** Chame sempre que uma oferta/preço mudar, pra não servir dado velho por até 60s à toa. */
+export async function invalidateBuilderPartsCache() {
+  await invalidateCache("builder:parts");
 }
 
 export async function getPartBySlug(slug: string) {

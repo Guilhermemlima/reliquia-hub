@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { uniqueSlug } from "@/lib/slug";
 import { isUrlAllowedForStore } from "@/modules/affiliate/domain-validation";
 import { refreshAllOfferPrices } from "@/modules/affiliate/price-refresh";
+import { invalidateBuilderPartsCache } from "@/modules/parts/queries";
 import {
   storeSchema,
   programSchema,
@@ -151,6 +152,7 @@ export async function createOffer(input: OfferInput) {
   revalidatePath("/admin/afiliados/ofertas");
   revalidatePath("/admin/pecas");
   revalidatePath("/montador");
+  await invalidateBuilderPartsCache();
   return { success: true as const, offerId: offer.id };
 }
 
@@ -180,6 +182,7 @@ export async function setOfferPrice(input: SetOfferPriceInput) {
   revalidatePath("/admin/afiliados/ofertas");
   revalidatePath("/admin/pecas");
   revalidatePath("/montador");
+  await invalidateBuilderPartsCache();
   return { success: true as const };
 }
 
@@ -192,6 +195,7 @@ export async function refreshAllOfferPricesAction() {
   revalidatePath("/admin/afiliados/ofertas");
   revalidatePath("/admin/pecas");
   revalidatePath("/montador");
+  await invalidateBuilderPartsCache();
   return { success: true as const, summary };
 }
 
@@ -205,5 +209,6 @@ export async function setOfferStatus(
   await prisma.offer.update({ where: { id: offerId }, data: { status } });
   revalidatePath("/admin/afiliados/ofertas");
   revalidatePath("/montador");
+  await invalidateBuilderPartsCache();
   return { success: true as const };
 }

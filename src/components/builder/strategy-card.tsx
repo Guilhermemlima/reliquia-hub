@@ -12,7 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { formatPrice } from "@/lib/format";
-import { PART_CATEGORY_LABELS } from "@/modules/parts/queries";
+import { PART_CATEGORY_LABELS } from "@/modules/parts/constants";
 import type { BuildStrategy } from "@/modules/builder/queries";
 
 export function StrategyCard({

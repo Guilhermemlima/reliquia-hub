@@ -25,7 +25,7 @@ import {
 import { Field, FieldGroup, FieldLabel, FieldError } from "@/components/ui/field";
 import { createOffer } from "@/modules/affiliate/actions";
 import { offerConditions, offerAvailabilities } from "@/modules/affiliate/schema";
-import { PART_CATEGORY_LABELS } from "@/modules/parts/queries";
+import { PART_CATEGORY_LABELS } from "@/modules/parts/constants";
 
 const CONDITION_LABELS: Record<string, string> = {
   NEW: "Novo",
