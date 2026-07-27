@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gem } from "lucide-react";
+import Image from "next/image";
 import { auth } from "@/lib/auth";
 import { UserMenu } from "@/components/layout/user-menu";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
@@ -16,11 +16,14 @@ export default async function DashboardLayout({
     <div className="flex min-h-screen flex-col">
       <header className="border-b">
         <div className="container mx-auto flex h-16 items-center gap-4 px-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Gem className="size-6 text-primary" />
-            <span className="font-heading text-lg font-semibold">
-              Relíquia Hub
-            </span>
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo-full.png"
+              alt="Relíquia Hub"
+              width={666}
+              height={375}
+              className="h-8 w-auto"
+            />
           </Link>
           <div className="ml-auto flex items-center gap-2">
             <ThemeToggle />

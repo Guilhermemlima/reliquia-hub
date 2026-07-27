@@ -23,8 +23,8 @@ export async function SiteHeader() {
           <Image
             src="/logo-full.png"
             alt="Relíquia Hub"
-            width={1690}
-            height={955}
+            width={666}
+            height={375}
             priority
             className="h-9 w-auto"
           />

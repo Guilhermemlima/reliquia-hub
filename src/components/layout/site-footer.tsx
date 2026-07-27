@@ -44,8 +44,8 @@ export function SiteFooter() {
           <Image
             src="/logo-full.png"
             alt="Relíquia Hub"
-            width={1690}
-            height={955}
+            width={666}
+            height={375}
             className="h-8 w-auto"
           />
           <p className="mt-2 max-w-xs text-sm text-muted-foreground">
